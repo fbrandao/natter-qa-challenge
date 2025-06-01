@@ -32,6 +32,7 @@
   "homepage": "https://github.com/fbrandao/natter-qa-challenge#readme",
   "devDependencies": {
     "@eslint/js": "^8.56.0",
+    "@faker-js/faker": "^9.8.0",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.29",
     "@typescript-eslint/eslint-plugin": "^7.0.0",

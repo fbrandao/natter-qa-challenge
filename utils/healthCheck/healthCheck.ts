@@ -27,7 +27,7 @@ export async function runHealthChecks(page: Page) {
     try {
       console.log(`Checking ${check.name}...`);
       const isHealthy = await check.check(page);
-      
+
       if (!isHealthy) {
         throw new Error(`${check.name} check failed`);
       }
@@ -37,4 +37,4 @@ export async function runHealthChecks(page: Page) {
       throw error;
     }
   }
-} 
+}
