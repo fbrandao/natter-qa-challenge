@@ -46,6 +46,7 @@
     "eslint-plugin-unicorn": "^50.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.0",
+    "playwright-ctrf-json-reporter": "^0.0.20",
     "prettier": "^3.5.3",
     "typescript": "^5.4.2"
   },

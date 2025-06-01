@@ -57,10 +57,18 @@ jobs:
       - name: Run All Tests
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" npm run test
 
-      - name: Upload Test Report
+      - name: Upload E2E Test Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-report
-          path: reports/
-          retention-days: 30
+          name: e2e-test-report
+          path: |
+            reports/e2e
+            ctrf/reports/e2e
+          retention-days: 14
+
+      - name: Publish Test Report (CTRF JSON)
+        if: always()
+        uses: ctrf-io/github-test-reporter@v1
+        with:
+          report-path: ctrf/reports/e2e/ctrf.json

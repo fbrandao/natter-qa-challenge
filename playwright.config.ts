@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import { isCI } from './config/env';
+import os from 'os';
 
 export default defineConfig({
   testDir: './tests',
@@ -14,6 +15,20 @@ export default defineConfig({
         ['junit', { outputFile: `./reports/e2e/results.xml` }],
         ['json', { outputFile: `./reports/e2e/results.json` }],
         ['github'],
+        [
+          'playwright-ctrf-json-reporter',
+          {
+            outputFile: 'reports/e2e/ctrf.json',
+            appName: 'Natter QA Challenge',
+            appVersion: '1.0.0',
+            osPlatform: os.platform(),
+            osRelease: os.release(),
+            osVersion: os.version(),
+            buildName: 'Natter E2E Build',
+            buildNumber: process.env.GITHUB_RUN_NUMBER || '1',
+            testEnvironment: process.env.NODE_ENV || 'development',
+          },
+        ],
       ]
     : [['html', { outputFolder: `./reports/e2e`, open: 'on-failure' }], ['line']],
 
