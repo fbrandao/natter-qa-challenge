@@ -1,18 +1,15 @@
 import { test } from '../fixtures';
-import { faker } from '@faker-js/faker';
 import { Call } from '../utils/session/call';
-import { User, UserSession } from '../utils/session/types';
+import { UserSession } from '../utils/session/types';
 
 test.describe.serial('🔒 Basic WebRTC Checks for single users', () => {
   let call: Call;
-  let bob: User;
   let bobSession: UserSession;
 
-  test.beforeEach(async ({ sessionManager }) => {
+  test.beforeEach(async ({ sessionManager, users }) => {
     await test.step('Join the video call', async () => {
       call = await sessionManager.newCall();
-      bob = sessionManager.createUsers(1, faker.person.firstName())[0];
-      bobSession = await call.addUser(bob);
+      bobSession = await call.addUser(users.Bob);
     });
   });
 

@@ -26,7 +26,7 @@ export const environment = isLocal
 
 // Test paths configuration
 export const testPaths = {
-  videos: path.resolve(__dirname, '../videos/fake_video.y4m'),
+  videos: path.resolve(__dirname, '../videos'),
   reports: path.resolve(__dirname, '../reports'),
   results: path.resolve(__dirname, '../test-results'),
   testDir: path.resolve(__dirname, '../tests'),
@@ -54,4 +54,4 @@ export const credentials = {
   token: getEnvVar('AGORA_TOKEN'),
   channel: getEnvVar('AGORA_CHANNEL'),
   userId: randomUUID(),
-}; 
+};

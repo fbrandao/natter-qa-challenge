@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { isCI, testPaths } from './config/env';
+import { isCI } from './config/env';
 
 export default defineConfig({
   testDir: './tests',
@@ -33,13 +33,7 @@ export default defineConfig({
         permissions: ['camera', 'microphone'],
         viewport: { width: 1280, height: 720 },
         baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
-        launchOptions: {
-          args: [
-            '--use-fake-device-for-media-stream',
-            '--use-fake-ui-for-media-stream',
-            `--use-file-for-fake-video-capture=${testPaths.videos}`,
-          ],
-        },
+
         headless: false,
       },
     },
@@ -52,13 +46,6 @@ export default defineConfig({
         permissions: ['camera', 'microphone'],
         viewport: { width: 1280, height: 720 },
         baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
-        launchOptions: {
-          args: [
-            '--use-fake-device-for-media-stream',
-            '--use-fake-ui-for-media-stream',
-            `--use-file-for-fake-video-capture=${testPaths.videos}`,
-          ],
-        },
         headless: false,
       },
     },

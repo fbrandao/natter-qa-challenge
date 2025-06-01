@@ -4,6 +4,7 @@ import { BasicVideoCallPage } from '../../pages/basicVideo/basicVideoPage';
 export type User = {
   userId: number;
   testUserName?: string;
+  videoPathOverride?: string;
 };
 
 export type UserSession = {

@@ -1,133 +1,91 @@
-// call.ts
-
-import { Browser } from '@playwright/test';
+import { BrowserType } from '@playwright/test';
 import { BasicVideoCallPage } from '../../pages/basicVideo/basicVideoPage';
-import { CallConfig, User, UserSession } from './types'; // Import User type
+import { CallConfig, User, UserSession } from './types';
 
 export class Call {
   private users: UserSession[] = [];
-  // REMOVE: private userIdCounter: number = 1000; // This counter is now in SessionManager
 
   constructor(
-    private browser: Browser,
-    private config: CallConfig
+    private browserType: BrowserType, // ✅ use BrowserType instead of Browser
+    private config: CallConfig,
+    private getVideoPath: () => string | undefined
   ) {}
 
-  /**
-   * Adds a pre-defined User object to the call.
-   * The User object must contain a unique numeric ID.
-   *
-   * @param user The User object (containing userId and optional testUserName) to add to the call.
-   * @returns The UserSession object.
-   */
   async addUser(user: User): Promise<UserSession> {
-    // Now accepts a User object directly
+    const logName = user.testUserName || `ID: ${user.userId}`;
     try {
-      const context = await this.browser.newContext({
+      const videoPath = user.videoPathOverride ?? this.getVideoPath();
+
+      const browser = await this.browserType.launch({
+        headless: false,
+        args: [
+          '--use-fake-device-for-media-stream',
+          '--use-fake-ui-for-media-stream',
+          ...(videoPath ? [`--use-file-for-fake-video-capture=${videoPath}`] : []),
+        ],
+      });
+
+      const context = await browser.newContext({
         permissions: ['camera', 'microphone'],
         viewport: { width: 1280, height: 720 },
       });
+
       const page = await context.newPage();
       const ui = new BasicVideoCallPage(page);
 
-      // Pass the user.userId (converted to string) to the UI.
       await ui.navigateAndJoin(
         this.config.appId,
         this.config.token,
         this.config.channel,
-        user.userId.toString() // Use the userId from the provided User object
+        user.userId.toString()
       );
-
-      // Verify immediate success on join
       await ui.expectSuccessAlert();
       await ui.expectLocalVideoPlaying(1);
 
-      const userSession: UserSession = {
-        user: user, // Store the provided User object
-        context,
-        page,
-        ui,
-      };
-      this.users.push(userSession);
-      return userSession;
+      const session: UserSession = { user, context, page, ui };
+      this.users.push(session);
+      console.log(`[Call] Added user ${logName}. Total users: ${this.users.length}`);
+      return session;
     } catch (error) {
-      const logIdentifier = user.testUserName
-        ? `${user.testUserName} (ID: ${user.userId})`
-        : `ID: ${user.userId}`;
       throw new Error(
-        `Failed to add user ${logIdentifier}: ${error instanceof Error ? error.message : String(error)}`
+        `Failed to add user ${logName}: ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }
 
-  /**
-   * Removes a specific user from the call by their numeric user ID.
-   *
-   * @param userId The numeric user ID of the user to remove.
-   */
   async removeUser(userId: number): Promise<void> {
-    const userIndex = this.users.findIndex((session) => session.user.userId === userId);
-    if (userIndex === -1) {
-      console.warn(
-        `Attempted to remove user with ID ${userId}, but they were not found in the call.`
-      );
-      return;
-    }
+    const index = this.users.findIndex((u) => u.user.userId === userId);
+    if (index === -1) return;
 
-    const userSession = this.users[userIndex];
-    const logIdentifier = userSession.user.testUserName
-      ? `${userSession.user.testUserName} (ID: ${userSession.user.userId})`
-      : `ID: ${userSession.user.userId}`;
+    const { user, context, ui } = this.users[index];
+    const label = user.testUserName || `ID: ${user.userId}`;
 
     try {
-      await userSession.ui.leaveCall();
-      await userSession.ui.expectNoLocalVideoPlaying();
-    } catch (error) {
-      console.warn(
-        `Warning: Error while user ${logIdentifier} was attempting to leave call gracefully:`,
-        error
-      );
+      await ui.leaveCall();
+      await ui.expectNoLocalVideoPlaying();
+    } catch (err) {
+      console.warn(`Leave error for user ${label}:`, err);
     } finally {
-      try {
-        await userSession.context.close();
-        console.log(`Closed context for user: ${logIdentifier}`);
-      } catch (error) {
-        console.error(`Error closing context for user ${logIdentifier}:`, error);
-      }
-      this.users.splice(userIndex, 1);
+      await context.close();
+      this.users.splice(index, 1);
+      console.log(`Removed user ${label}`);
     }
   }
 
-  /**
-   * Cleans up all users in this specific call instance by closing their contexts.
-   */
   async cleanup(): Promise<void> {
-    console.log(`Cleaning up ${this.users.length} users for this call...`);
-    for (const userSession of this.users) {
-      const logIdentifier = userSession.user.testUserName
-        ? `${userSession.user.testUserName} (ID: ${userSession.user.userId})`
-        : `ID: ${userSession.user.userId}`;
-      if (userSession.page.isClosed() === false) {
-        try {
-          await userSession.ui.leaveCall();
-          await userSession.ui.expectNoLocalVideoPlaying();
-        } catch (error) {
-          console.warn(
-            `Warning during cleanup leave for user ${logIdentifier}: ${error instanceof Error ? error.message : String(error)}`
-          );
-        }
-      }
+    console.log(`[Call] Starting cleanup of ${this.users.length} users...`);
+    for (const { context, user } of this.users) {
+      const logName = user.testUserName || `ID: ${user.userId}`;
       try {
-        await userSession.context.close();
-        console.log(`Context closed for user ${logIdentifier}`);
+        console.log(`[Call] Closing context for user ${logName}...`);
+        await context.close();
+        console.log(`[Call] Context closed for user ${logName}`);
       } catch (error) {
-        console.error(
-          `Error during final context close for user ${logIdentifier}: ${error instanceof Error ? error.message : String(error)}`
-        );
+        console.error(`[Call] Error closing context for user ${logName}:`, error);
       }
     }
     this.users = [];
-    console.log('Call cleanup complete.');
+    console.log('[Call] All users cleaned up');
   }
 
   getUsers(): UserSession[] {

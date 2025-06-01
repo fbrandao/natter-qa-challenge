@@ -1,67 +1,62 @@
-// sessionManager.ts
-
-import { Browser } from '@playwright/test';
+import { BrowserType } from '@playwright/test';
 import { Call } from './call';
-import { CallConfig, User } from './types'; // Import User type
+import { CallConfig, User } from './types';
 import { faker } from '@faker-js/faker';
+import * as path from 'path';
+import { testPaths } from '../../config/env';
 
 export class SessionManager {
   private calls: Call[] = [];
-  // Global counter for user IDs, unique across all calls created by this SessionManager instance
-  private globalUserIdCounter: number = 1000;
+  private videoFiles: string[];
 
   constructor(
-    private browser: Browser,
+    private browserType: BrowserType,
     private config: CallConfig
-  ) {}
+  ) {
+    this.videoFiles = [
+      path.join(testPaths.videos, '/randomUsers/salesman_qcif.y4m'),
+      path.join(testPaths.videos, '/randomUsers/sign_irene_qcif.y4m'),
+      path.join(testPaths.videos, '/randomUsers/silent_qcif.y4m'),
+      path.join(testPaths.videos, '/randomUsers/suzie_qcif.y4m'),
+    ];
+  }
 
-  /**
-   * Creates a new Call instance.
-   * @returns A new Call object.
-   */
+  private getRandomVideoFilePath(): string | undefined {
+    console.log('Using video path:', this.videoFiles);
+    if (this.videoFiles.length === 0) return undefined;
+    console.log('Random video file path:', faker.helpers.arrayElement(this.videoFiles));
+    return faker.helpers.arrayElement(this.videoFiles);
+  }
+
   async newCall(): Promise<Call> {
-    const call = new Call(this.browser, this.config);
+    const call = new Call(this.browserType, this.config, this.getRandomVideoFilePath.bind(this));
     this.calls.push(call);
+    console.log(`[SessionManager] Created new call. Total calls: ${this.calls.length}`);
     return call;
   }
 
-  /**
-   * Generates an array of unique User objects.
-   * Each user will have a unique numeric ID and an optional friendly name.
-   *
-   * @param count The number of unique users to create.
-   * @param baseName Optional base name for users (e.g., 'User', 'Participant'). Names will be 'baseName1', 'baseName2', etc.
-   * @returns An array of User objects.
-   */
-  createUsers(count: number, baseName: string = 'User'): User[] {
-    if (count <= 0) {
-      return [];
-    }
-
-    const users: User[] = [];
-    for (let i = 0; i < count; i++) {
-      const newUser: User = {
-        userId: faker.number.int({ min: 10000, max: 99999 }),
-        testUserName: `${baseName}${i + 1}`,
-      };
-      users.push(newUser);
-    }
-    console.log(
-      `Generated ${count} users with IDs from ${users[0].userId} to ${users[users.length - 1].userId}`
-    );
-    return users;
+  createUsers(count: number, baseName = 'User'): User[] {
+    return Array.from({ length: count }, (_, i) => ({
+      userId: faker.number.int({ min: 10000, max: 99999 }),
+      testUserName: `${baseName}${i + 1}`,
+      videoPathOverride: this.getRandomVideoFilePath(),
+    }));
   }
 
-  /**
-   * Cleans up all active calls managed by this SessionManager.
-   */
   async cleanup(): Promise<void> {
-    console.log('SessionManager initiating global cleanup for all calls...');
-    for (const call of this.calls) {
-      await call.cleanup();
+    console.log(`[SessionManager] Starting cleanup of ${this.calls.length} calls...`);
+    const callsToCleanup = [...this.calls]; // Create a copy to avoid modification during iteration
+    for (const call of callsToCleanup) {
+      try {
+        console.log('[SessionManager] Cleaning up call...');
+        await call.cleanup();
+        console.log('[SessionManager] Call cleanup complete');
+      } catch (error) {
+        console.error('[SessionManager] Error during call cleanup:', error);
+      }
     }
     this.calls = [];
-    console.log('SessionManager global cleanup complete.');
+    console.log('[SessionManager] All calls cleaned up');
   }
 
   getCalls(): Call[] {

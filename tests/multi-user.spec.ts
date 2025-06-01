@@ -4,7 +4,13 @@ import { Call } from '../utils/session/call';
 import { faker } from '@faker-js/faker';
 
 test.describe.serial('🔒 Multi-user WebRTC Scenarios', () => {
-  test('should handle user leaving and UI updates correctly', async ({ sessionManager }) => {
+  test.beforeEach(async ({ sessionManager }) => {
+    await test.step('Cleanup any existing calls', async () => {
+      await sessionManager.cleanup();
+    });
+  });
+
+  test('Should handle user leaving and UI updates correctly', async ({ sessionManager }) => {
     let call: Call;
     let alice: User;
     let bob: User;
@@ -44,7 +50,7 @@ test.describe.serial('🔒 Multi-user WebRTC Scenarios', () => {
     });
   });
 
-  test('should handle multiple users joining in sequence', async ({ sessionManager }) => {
+  test('Should handle multiple users joining in sequence', async ({ sessionManager }) => {
     let call: Call;
     let alice: User;
     let bob: User;
@@ -97,7 +103,7 @@ test.describe.serial('🔒 Multi-user WebRTC Scenarios', () => {
     });
   });
 
-  test('should handle user reconnection after disconnection', async ({ sessionManager }) => {
+  test('Should handle user reconnection after disconnection', async ({ sessionManager }) => {
     let call: Call;
     let alice: User;
     let bob: User;
