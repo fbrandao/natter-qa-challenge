@@ -1,9 +1,9 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ 'do-not-run-workflow' ]
+    branches: [ 'main' ]
   pull_request:
-    branches: [ 'do-not-run-workflow' ]
+    branches: [ 'main' ]
 jobs:
   test:
     timeout-minutes: 60
@@ -22,8 +22,10 @@ jobs:
       run: npm ci
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
+    - name: Run Single User Tests
+      run: npx playwright test --project=single-user
+    - name: Run Multi User Tests
+      run: npx playwright test --project=multi-user
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:

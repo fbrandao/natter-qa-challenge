@@ -33,7 +33,6 @@ export default defineConfig({
         permissions: ['camera', 'microphone'],
         viewport: { width: 1280, height: 720 },
         baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
-
         headless: false,
       },
     },
