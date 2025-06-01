@@ -39,9 +39,6 @@ export class Call {
         this.config.channel,
         user.userId.toString()
       );
-      await ui.expectSuccessAlert();
-      await ui.expectLocalVideoPlaying(1);
-
       const session: UserSession = { user, context, page, ui };
       this.users.push(session);
       console.log(`[Call] Added user ${logName}. Total users: ${this.users.length}`);

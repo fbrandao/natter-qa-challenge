@@ -32,6 +32,7 @@ export const testPaths = {
   testDir: path.resolve(__dirname, '../tests'),
   fixtures: path.resolve(__dirname, '../tests/fixtures'),
   e2e: path.resolve(__dirname, '../tests/e2e'),
+  snapshots: path.resolve(__dirname, '../snapshots'),
 } as const;
 
 // Load .env only in local

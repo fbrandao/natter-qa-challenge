@@ -22,6 +22,10 @@ test.describe.serial('🔒 Multi-user WebRTC Scenarios', () => {
       [alice, bob] = sessionManager.createUsers(2, faker.person.firstName());
       aliceSession = await call.addUser(alice);
       bobSession = await call.addUser(bob);
+      await aliceSession.ui.expectSuccessAlert();
+      await aliceSession.ui.expectLocalVideoPlaying(1);
+      await bobSession.ui.expectSuccessAlert();
+      await bobSession.ui.expectLocalVideoPlaying(1);
     });
 
     await test.step('Verify initial state for both users', async () => {

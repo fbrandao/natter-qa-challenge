@@ -28,8 +28,9 @@ export class SessionManager {
     return faker.helpers.arrayElement(this.videoFiles);
   }
 
-  async newCall(): Promise<Call> {
-    const call = new Call(this.browserType, this.config, this.getRandomVideoFilePath.bind(this));
+  async newCall(config?: CallConfig): Promise<Call> {
+    const callConfig = config ?? this.config;
+    const call = new Call(this.browserType, callConfig, this.getRandomVideoFilePath.bind(this));
     this.calls.push(call);
     console.log(`[SessionManager] Created new call. Total calls: ${this.calls.length}`);
     return call;

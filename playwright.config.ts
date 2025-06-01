@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { isCI } from './config/env';
+import { isCI, testPaths } from './config/env';
 import os from 'os';
 
 export default defineConfig({
@@ -37,7 +37,7 @@ export default defineConfig({
   use: {
     trace: 'on',
   },
-
+  snapshotDir: testPaths.snapshots,
   projects: [
     {
       name: 'single-user',
@@ -54,6 +54,18 @@ export default defineConfig({
     {
       name: 'multi-user',
       testMatch: /multi-user\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chromium',
+        permissions: ['camera', 'microphone'],
+        viewport: { width: 1280, height: 720 },
+        baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
+        headless: false,
+      },
+    },
+    {
+      name: 'snapshot-users',
+      testMatch: /snapshot-users\.spec\.ts/,
       use: {
         ...devices['Desktop Chrome'],
         channel: 'chromium',
