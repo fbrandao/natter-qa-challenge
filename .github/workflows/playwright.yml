@@ -58,7 +58,7 @@ jobs:
         run: mkdir -p ctrf/reports/e2e
 
       - name: Run All Tests
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" npm run test
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:update
 
       - name: Upload E2E Test Report
         if: always()
