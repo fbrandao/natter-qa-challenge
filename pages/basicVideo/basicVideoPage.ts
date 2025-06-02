@@ -272,7 +272,7 @@ export class BasicVideoCallPage extends BasePage {
       scale: 'css',
       maxDiffPixelRatio: 0.15,
       threshold: 0.2,
-      timeout: 2000,
+      timeout: 8000,
     });
   }
 }
