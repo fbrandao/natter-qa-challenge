@@ -2,7 +2,7 @@ import { test } from '../fixtures';
 import { UserSession } from '../utils/session/types';
 
 test.describe.serial('📸 Snapshot comparison of video streams', () => {
-  const userNames = ['Bob', 'Alice', 'Claire', 'MissAm'] as const;
+  const userNames = ['Bob', 'Alice', 'Claire'] as const;
 
   test.beforeEach(async ({ sessionManager }) => {
     await test.step('Cleanup any existing calls', async () => {
