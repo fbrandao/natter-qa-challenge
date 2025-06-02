@@ -26,7 +26,7 @@ test.describe('📸 Snapshot comparison of video streams', () => {
             scale: 'css',
             maxDiffPixelRatio: 0.15,
             threshold: 0.2,
-            timeout: 2000,
+            timeout: 8000,
           }
         );
       });

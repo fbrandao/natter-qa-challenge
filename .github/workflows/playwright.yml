@@ -54,6 +54,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Ensure CTRF report directory exists
+        run: mkdir -p ctrf/reports/e2e
+
       - name: Run All Tests
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" npm run test
 
@@ -72,3 +75,11 @@ jobs:
         uses: ctrf-io/github-test-reporter@v1
         with:
           report-path: ctrf/reports/e2e/ctrf.json
+      
+      - name: Upload Snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshots
+          path: snapshots/ci
+          retention-days: 14

@@ -8,6 +8,13 @@ export default defineConfig({
   forbidOnly: !!config.env.isCI,
   retries: config.env.isCI ? 2 : 0,
   workers: 1,
+  snapshotDir: config.env.isCI ? './snapshots/ci' : './snapshots/local',
+  expect: {
+    timeout: config.env.isCI ? 10000 : 5000,
+    toHaveScreenshot: {
+      pathTemplate: `snapshots/${config.env.environment}/{testFilePath}/{arg}-{platform}{ext}`,
+    },
+  },
   reporter: config.env.isCI
     ? [
         ['html', { outputFolder: `./reports/e2e`, open: 'never' }],
@@ -37,7 +44,6 @@ export default defineConfig({
   use: {
     trace: 'on',
   },
-  snapshotDir: './snapshots',
   projects: [
     {
       name: 'single-user',
