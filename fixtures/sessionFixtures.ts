@@ -1,6 +1,6 @@
 import { test as base, chromium } from '@playwright/test';
 import { SessionManager } from '../utils/session';
-import { credentials } from '../config/env';
+import { config } from '../config/env';
 
 type SessionFixtures = {
   sessionManager: SessionManager;
@@ -14,9 +14,9 @@ export const test = base.extend<SessionFixtures>({
     async ({}, use) => {
       if (!globalSessionManager) {
         globalSessionManager = new SessionManager(chromium, {
-          appId: credentials.appId,
-          token: credentials.token,
-          channel: credentials.channel,
+          appId: config.auth.agora.appId,
+          token: config.auth.agora.token,
+          channel: config.auth.agora.channel,
         });
       }
 

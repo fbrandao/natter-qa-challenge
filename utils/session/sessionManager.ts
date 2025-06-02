@@ -3,7 +3,7 @@ import { Call } from './call';
 import { CallConfig, User } from './types';
 import { faker } from '@faker-js/faker';
 import * as path from 'path';
-import { testPaths } from '../../config/env';
+import { paths } from '../../config/env';
 
 export class SessionManager {
   private calls: Call[] = [];
@@ -14,10 +14,10 @@ export class SessionManager {
     private config: CallConfig
   ) {
     this.videoFiles = [
-      path.join(testPaths.videos, '/randomUsers/salesman_qcif.y4m'),
-      path.join(testPaths.videos, '/randomUsers/sign_irene_qcif.y4m'),
-      path.join(testPaths.videos, '/randomUsers/silent_qcif.y4m'),
-      path.join(testPaths.videos, '/randomUsers/suzie_qcif.y4m'),
+      path.join(paths.videos, '/randomUsers/salesman_qcif.y4m'),
+      path.join(paths.videos, '/randomUsers/sign_irene_qcif.y4m'),
+      path.join(paths.videos, '/randomUsers/silent_qcif.y4m'),
+      path.join(paths.videos, '/randomUsers/suzie_qcif.y4m'),
     ];
   }
 

@@ -254,4 +254,25 @@ export class BasicVideoCallPage extends BasePage {
       return Array.from(wrappers).map((div) => div.id.replace('player-wrapper-', ''));
     });
   }
+
+  /**
+   * Snapshot the entire video grid for visual comparison.
+   * Automatically names the snapshot based on the number of users present.
+   * @param label Optional label to customize snapshot file name.
+   */
+  async snapshotVideoGrid(label?: string) {
+    const grid = this.page.locator('.video-group');
+    const remoteUserIds = await this.getActiveRemoteUserIds();
+    const totalUsers = remoteUserIds.length + 1; // +1 for local user
+    const snapshotName = label ? `video-grid-${label}.png` : `video-grid-${totalUsers}-users.png`;
+
+    await expect(grid).toHaveScreenshot(snapshotName, {
+      animations: 'disabled',
+      caret: 'hide',
+      scale: 'css',
+      maxDiffPixelRatio: 0.15,
+      threshold: 0.2,
+      timeout: 2000,
+    });
+  }
 }

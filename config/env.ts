@@ -9,12 +9,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const NODE_ENV = process.env.NODE_ENV;
 const CI = process.env.CI === 'true';
 
-export const isCI = CI;
-export const isTest = NODE_ENV === 'test';
-export const isProduction = NODE_ENV === 'production';
-export const isLocal = !isCI && !isProduction && !isTest;
+const isCI = CI;
+const isTest = NODE_ENV === 'test';
+const isProduction = NODE_ENV === 'production';
+const isLocal = !isCI && !isProduction && !isTest;
 
-export const environment = isLocal
+const environment = isLocal
   ? 'local'
   : isCI
     ? 'ci'
@@ -24,17 +24,6 @@ export const environment = isLocal
         ? 'production'
         : 'local';
 
-// Test paths configuration
-export const testPaths = {
-  videos: path.resolve(__dirname, '../videos'),
-  reports: path.resolve(__dirname, '../reports'),
-  results: path.resolve(__dirname, '../test-results'),
-  testDir: path.resolve(__dirname, '../tests'),
-  fixtures: path.resolve(__dirname, '../tests/fixtures'),
-  e2e: path.resolve(__dirname, '../tests/e2e'),
-  snapshots: path.resolve(__dirname, '../snapshots'),
-} as const;
-
 // Load .env only in local
 if (isLocal) {
   dotenv.config({ path: path.resolve(process.cwd(), '.env') });
@@ -43,16 +32,64 @@ if (isLocal) {
 /**
  * Retrieves an environment variable with optional error handling.
  */
-export function getEnvVar(key: string, required = true): string {
+function getEnvVar(key: string, required = true): string {
   const val = process.env[key];
   if (!val && required) throw new Error(`❌ Missing required env var: ${key}`);
   return val || '';
 }
 
-// Agora credentials
-export const credentials = {
-  appId: getEnvVar('AGORA_APP_ID'),
-  token: getEnvVar('AGORA_TOKEN'),
-  channel: getEnvVar('AGORA_CHANNEL'),
-  userId: randomUUID(),
-};
+export const config = {
+  // Environment information
+  env: {
+    isCI,
+    isTest,
+    isProduction,
+    isLocal,
+    environment,
+    NODE_ENV,
+  },
+
+  // Application URLs
+  urls: {
+    baseUrls: {
+      local: 'http://localhost:3000',
+      ci: 'http://ci-app.example.com',
+      test: 'http://test-app.example.com',
+      production: 'https://app.example.com',
+    },
+    get baseUrl() {
+      return this.baseUrls[environment];
+    },
+  },
+
+  // File system paths
+  paths: {
+    videos: path.resolve(__dirname, '../videos'),
+    reports: path.resolve(__dirname, '../reports'),
+    results: path.resolve(__dirname, '../test-results'),
+    testDir: path.resolve(__dirname, '../tests'),
+    fixtures: path.resolve(__dirname, '../tests/fixtures'),
+    e2e: path.resolve(__dirname, '../tests/e2e'),
+    snapshots: path.resolve(__dirname, '../snapshots'),
+  },
+
+  // Credentials and authentication
+  auth: {
+    agora: {
+      appId: getEnvVar('AGORA_APP_ID'),
+      token: getEnvVar('AGORA_TOKEN'),
+      channel: getEnvVar('AGORA_CHANNEL'),
+      userId: randomUUID(),
+    },
+  },
+
+  // Test configuration
+  test: {
+    timeout: 30000,
+    retries: 2,
+    workers: process.env.CI ? 1 : undefined,
+  },
+} as const;
+
+// Export individual config sections for convenience
+export const { env, urls, paths, auth, test } = config;

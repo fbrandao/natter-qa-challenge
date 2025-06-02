@@ -1,16 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
-import { isCI, testPaths } from './config/env';
+import { config } from './config/env';
 import os from 'os';
 
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  forbidOnly: !!config.env.isCI,
+  retries: config.env.isCI ? 2 : 0,
   workers: 1,
-  reporter: isCI
+  reporter: config.env.isCI
     ? [
-        ['html', { outputFolder: `./reports/e2e` }],
+        ['html', { outputFolder: `./reports/e2e`, open: 'never' }],
         ['line'],
         ['junit', { outputFile: `./reports/e2e/results.xml` }],
         ['json', { outputFile: `./reports/e2e/results.json` }],
@@ -18,7 +18,7 @@ export default defineConfig({
         [
           'playwright-ctrf-json-reporter',
           {
-            outputFile: 'reports/e2e/ctrf.json',
+            outputFile: 'ctrf/reports/e2e/ctrf.json',
             appName: 'Natter QA Challenge',
             appVersion: '1.0.0',
             osPlatform: os.platform(),
@@ -37,7 +37,7 @@ export default defineConfig({
   use: {
     trace: 'on',
   },
-  snapshotDir: testPaths.snapshots,
+  snapshotDir: './snapshots',
   projects: [
     {
       name: 'single-user',
