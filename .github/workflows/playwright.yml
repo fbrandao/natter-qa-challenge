@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: 'Update snapshots'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   setup:
@@ -41,6 +47,7 @@ jobs:
       AGORA_APP_ID: ${{ secrets.AGORA_APP_ID }}
       AGORA_TOKEN: ${{ secrets.AGORA_TOKEN }}
       AGORA_CHANNEL: ${{ secrets.AGORA_CHANNEL }}
+      UPDATE_SNAPSHOTS: ${{ github.event.inputs.update_snapshots || false }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,7 +65,12 @@ jobs:
         run: mkdir -p ctrf/reports/e2e
 
       - name: Run All Tests
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:update
+        run: |
+          if [ "$UPDATE_SNAPSHOTS" = "true" ]; then
+            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:update
+          else
+            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test
+          fi
 
       - name: Upload E2E Test Report
         if: always()
