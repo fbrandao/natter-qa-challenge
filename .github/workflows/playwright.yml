@@ -64,7 +64,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-test-report
+          name: e2e-test-report-${{ github.run_id }}
           path: |
             reports/e2e
             ctrf/reports/e2e
@@ -80,6 +80,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: snapshots
+          name: snapshots-${{ github.run_id }}
           path: snapshots/ci
           retention-days: 14
