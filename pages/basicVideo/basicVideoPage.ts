@@ -27,6 +27,8 @@ export class BasicVideoCallPage extends BasePage {
     '#remote-playerlist .agora_video_player'
   );
   readonly localVideoContainer: Locator = this.page.locator('#local-player .agora_video_player');
+
+  readonly videoGrid: Locator = this.page.locator('.video-group');
   readonly successAlertToast: Locator = this.page
     .getByRole('alert')
     .getByText('Joined room successfully.');
@@ -255,18 +257,25 @@ export class BasicVideoCallPage extends BasePage {
     });
   }
 
+  async getActiveLocalUserIds(): Promise<string[]> {
+    return this.page.evaluate(() => {
+      const localUser = document.querySelector('#local-player');
+      return localUser ? [localUser.id.replace('player-wrapper-', '')] : [];
+    });
+  }
+
   /**
    * Snapshot the entire video grid for visual comparison.
    * Automatically names the snapshot based on the number of users present.
    * @param label Optional label to customize snapshot file name.
    */
   async snapshotVideoGrid(label?: string) {
-    const grid = this.page.locator('.video-group');
     const remoteUserIds = await this.getActiveRemoteUserIds();
-    const totalUsers = remoteUserIds.length + 1; // +1 for local user
+    const localUserIds = await this.getActiveLocalUserIds();
+    const totalUsers = remoteUserIds.length + localUserIds.length;
     const snapshotName = label ? `video-grid-${label}.png` : `video-grid-${totalUsers}-users.png`;
 
-    await expect(grid).toHaveScreenshot(snapshotName, {
+    await expect(this.videoGrid).toHaveScreenshot(snapshotName, {
       animations: 'disabled',
       caret: 'hide',
       scale: 'css',
