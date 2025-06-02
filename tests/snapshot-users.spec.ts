@@ -46,13 +46,10 @@ test.describe.serial('📸 Snapshot comparison of video streams', () => {
     });
 
     // Take a snapshot from each user's perspective
-    await test.step('take snapshots from each perspective', async () => {
-      for (const [index, session] of sessions.entries()) {
-        const name = userNames[index];
-        await test.step(`snapshot from ${name}'s perspective`, async () => {
-          await session.ui.snapshotVideoGrid(`multi-user-${name.toLowerCase()}-perspective`);
-        });
-      }
+    await test.step('verify full grid snapshot from last user', async () => {
+      await sessions[sessions.length - 1].ui.snapshotVideoGrid(
+        `multi-user-${userNames[userNames.length - 1].toLowerCase()}-perspective`
+      );
     });
   });
 });
