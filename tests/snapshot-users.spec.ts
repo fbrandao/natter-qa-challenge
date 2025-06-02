@@ -4,6 +4,12 @@ import { UserSession } from '../utils/session/types';
 test.describe.serial('📸 Snapshot comparison of video streams', () => {
   const userNames = ['Bob', 'Alice', 'Claire', 'MissAm'] as const;
 
+  test.beforeEach(async ({ sessionManager }) => {
+    await test.step('Cleanup any existing calls', async () => {
+      await sessionManager.cleanup();
+    });
+  });
+
   test('should render and match snapshot for single user', async ({ sessionManager, users }) => {
     const call = await sessionManager.newCall();
     const userName = 'Bob';

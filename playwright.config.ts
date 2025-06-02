@@ -6,7 +6,7 @@ export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
   forbidOnly: !!config.env.isCI,
-  retries: config.env.isCI ? 2 : 0,
+  retries: config.env.isCI ? 1 : 0,
   workers: 1,
   snapshotDir: config.env.isCI ? './snapshots/ci' : './snapshots/local',
   expect: {
