@@ -27,7 +27,7 @@ export class Call {
 
       const context = await browser.newContext({
         permissions: ['camera', 'microphone'],
-        viewport: { width: 1280, height: 720 },
+        viewport: { width: 1920, height: 1080 },
       });
 
       const page = await context.newPage();

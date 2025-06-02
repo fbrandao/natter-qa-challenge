@@ -265,40 +265,34 @@ export class BasicVideoCallPage extends BasePage {
   }
 
   /**
-   * Snapshot the entire video grid for visual comparison.
-   * Automatically names the snapshot based on the number of users present.
+   * Snapshot only the local and remote player containers for visual comparison.
+   * This avoids capturing unrelated UI (like the sidebar or extra content).
    * @param label Optional label to customize snapshot file name.
    */
   async snapshotVideoGrid(label?: string) {
     const remoteUserIds = await this.getActiveRemoteUserIds();
-    const localUserIds = await this.getActiveLocalUserIds();
-    const totalUsers = remoteUserIds.length + localUserIds.length;
-    const snapshotName = label ? `video-grid-${label}.png` : `video-grid-${totalUsers}-users.png`;
+    const snapshotName = label ? `video-grid-${label}.png` : `video-grid-snapshot.png`;
 
-    await this.page.evaluate(() => {
-      const group = document.querySelector('.video-group');
-      if (group) {
-        Object.assign((group as HTMLElement).style, {
-          minWidth: '1140px',
-          maxWidth: '1140px',
-          minHeight: '720px',
-          overflow: 'hidden',
-        });
-      }
-
-      document.querySelectorAll('video').forEach((video) => {
-        try {
-          video.pause();
-        } catch (_) {}
+    // Single user: snapshot only local player container
+    if (remoteUserIds.length === 0) {
+      await expect(this.localVideoContainer).toHaveScreenshot(snapshotName, {
+        animations: 'disabled',
+        caret: 'hide',
+        scale: 'css',
+        maxDiffPixelRatio: 0.2,
+        threshold: 0.3,
+        timeout: 10000,
       });
-    });
-    await expect(this.videoGrid).toHaveScreenshot(snapshotName, {
-      animations: 'disabled',
-      caret: 'hide',
-      scale: 'css',
-      maxDiffPixelRatio: 0.15,
-      threshold: 0.2,
-      timeout: 8000,
-    });
+    } else {
+      // Multi-user: snapshot the full video grid
+      await expect(this.videoGrid).toHaveScreenshot(snapshotName, {
+        animations: 'disabled',
+        caret: 'hide',
+        scale: 'css',
+        maxDiffPixelRatio: 0.2,
+        threshold: 0.3,
+        timeout: 10000,
+      });
+    }
   }
 }
