@@ -275,6 +275,23 @@ export class BasicVideoCallPage extends BasePage {
     const totalUsers = remoteUserIds.length + localUserIds.length;
     const snapshotName = label ? `video-grid-${label}.png` : `video-grid-${totalUsers}-users.png`;
 
+    await this.page.evaluate(() => {
+      const group = document.querySelector('.video-group');
+      if (group) {
+        Object.assign((group as HTMLElement).style, {
+          minWidth: '1140px',
+          maxWidth: '1140px',
+          minHeight: '720px',
+          overflow: 'hidden',
+        });
+      }
+
+      document.querySelectorAll('video').forEach((video) => {
+        try {
+          video.pause();
+        } catch (_) {}
+      });
+    });
     await expect(this.videoGrid).toHaveScreenshot(snapshotName, {
       animations: 'disabled',
       caret: 'hide',
