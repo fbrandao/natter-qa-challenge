@@ -6,7 +6,7 @@ export class Call {
   private users: UserSession[] = [];
 
   constructor(
-    private browserType: BrowserType, // ✅ use BrowserType instead of Browser
+    private browserType: BrowserType,
     private config: CallConfig,
     private getVideoPath: () => string | undefined
   ) {}
@@ -21,6 +21,7 @@ export class Call {
         args: [
           '--use-fake-device-for-media-stream',
           '--use-fake-ui-for-media-stream',
+          '--disable-gpu',
           ...(videoPath ? [`--use-file-for-fake-video-capture=${videoPath}`] : []),
         ],
       });

@@ -273,8 +273,13 @@ export class BasicVideoCallPage extends BasePage {
     const remoteUserIds = await this.getActiveRemoteUserIds();
     const snapshotName = label ? `video-grid-${label}.png` : `video-grid-snapshot.png`;
 
+    console.log(`[DEBUG_SNAPSHOT] Starting snapshot process for ${snapshotName}`);
+    console.log(`[DEBUG_SNAPSHOT] Active remote users: ${remoteUserIds.length}`);
+    console.log(`[DEBUG_SNAPSHOT] Remote user IDs: ${remoteUserIds.join(', ')}`);
+
     // Single user: snapshot only local player container
     if (remoteUserIds.length === 0) {
+      console.log(`[DEBUG_SNAPSHOT] Taking single user snapshot of local video container`);
       await expect(this.localVideoContainer).toHaveScreenshot(snapshotName, {
         animations: 'disabled',
         caret: 'hide',
@@ -285,6 +290,7 @@ export class BasicVideoCallPage extends BasePage {
       });
     } else {
       // Multi-user: snapshot the full video grid
+      console.log(`[DEBUG_SNAPSHOT] Taking multi-user snapshot of full video grid`);
       await expect(this.videoGrid).toHaveScreenshot(snapshotName, {
         animations: 'disabled',
         caret: 'hide',
@@ -294,5 +300,6 @@ export class BasicVideoCallPage extends BasePage {
         timeout: 10000,
       });
     }
+    console.log(`[DEBUG_SNAPSHOT] Snapshot completed for ${snapshotName}`);
   }
 }

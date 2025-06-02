@@ -4,6 +4,7 @@ import os from 'os';
 
 export default defineConfig({
   testDir: './tests',
+  timeout: config.env.isCI ? 60000 : 30000,
   fullyParallel: false,
   forbidOnly: !!config.env.isCI,
   retries: config.env.isCI ? 1 : 0,
@@ -15,7 +16,7 @@ export default defineConfig({
       pathTemplate: `snapshots/${config.env.environment}/{testFilePath}/{arg}-{platform}{ext}`,
     },
   },
-  reporter: config.env.isCI
+  reporter: !config.env.isCI
     ? [
         ['html', { outputFolder: `./reports/e2e`, open: 'never' }],
         ['line'],
@@ -52,7 +53,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         channel: 'chromium',
         permissions: ['camera', 'microphone'],
-        viewport: { width: 1280, height: 720 },
         baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
         headless: false,
       },
@@ -64,7 +64,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         channel: 'chromium',
         permissions: ['camera', 'microphone'],
-        viewport: { width: 1280, height: 720 },
         baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
         headless: false,
       },
