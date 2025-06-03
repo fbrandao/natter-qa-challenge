@@ -1,6 +1,6 @@
-import { test } from '../fixtures';
-import { Call } from '../utils/session/call';
-import { UserSession, User } from '../utils/session/types';
+import { test } from '../../../fixtures';
+import { Call } from '../../../utils/session/call';
+import { UserSession, User } from '../../../utils/session/types';
 
 test.describe.serial('🔒 Basic WebRTC Checks for single users', () => {
   let call: Call;

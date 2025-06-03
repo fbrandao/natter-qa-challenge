@@ -8,7 +8,6 @@ interface ApiRequest {
 }
 
 export class VideoCallPage extends BasePage {
-  readonly url = '/basicVideoCall/index.html';
 
   readonly appIdInput: Locator = this.page.getByRole('textbox', { name: 'Enter the appid' });
   readonly tokenInput: Locator = this.page.getByRole('textbox', { name: 'Enter the app token' });
@@ -64,7 +63,7 @@ export class VideoCallPage extends BasePage {
   }
 
   async navigateAndJoin(appId: string, token: string, channel: string, userId?: string) {
-    await this.goto(this.url);
+    await this.goto('');
     await this.appIdInput.fill(appId);
     await this.tokenInput.fill(token);
     await this.channelInput.fill(channel);

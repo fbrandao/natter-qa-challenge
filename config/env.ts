@@ -3,7 +3,8 @@ import path from 'path';
 import { randomUUID } from 'crypto';
 import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// ESM-specific path resolution
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Environment detection
 const NODE_ENV = process.env.NODE_ENV;
@@ -26,6 +27,10 @@ const environment = isLocal
 
 // Load .env only in local
 if (isLocal) {
+  // Try to load .env from both current directory and root directory
+  const rootDir = path.resolve(dirname, '..');
+  dotenv.config({ path: path.resolve(rootDir, '.env') });
+  // Also try current directory as fallback
   dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 }
 
@@ -64,13 +69,13 @@ export const config = {
 
   // File system paths
   paths: {
-    videos: path.resolve(__dirname, '../videos'),
-    reports: path.resolve(__dirname, '../reports'),
-    results: path.resolve(__dirname, '../test-results'),
-    testDir: path.resolve(__dirname, '../tests'),
-    fixtures: path.resolve(__dirname, '../tests/fixtures'),
-    e2e: path.resolve(__dirname, '../tests/e2e'),
-    snapshots: path.resolve(__dirname, '../snapshots'),
+    videos: path.resolve(dirname, '../videos'),
+    reports: path.resolve(dirname, '../reports'),
+    results: path.resolve(dirname, '../test-results'),
+    testDir: path.resolve(dirname, '../tests'),
+    fixtures: path.resolve(dirname, '../tests/fixtures'),
+    e2e: path.resolve(dirname, '../tests/e2e'),
+    snapshots: path.resolve(dirname, '../snapshots'),
   },
 
   // Credentials and authentication
@@ -80,7 +85,7 @@ export const config = {
       token: getEnvVar('AGORA_TOKEN'),
       channel: getEnvVar('AGORA_CHANNEL'),
       userId: randomUUID(),
-    },
+    }
   },
 
   // Test configuration

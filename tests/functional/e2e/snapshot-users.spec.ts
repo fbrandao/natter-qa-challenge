@@ -1,5 +1,5 @@
-import { test } from '../fixtures';
-import { UserSession } from '../utils/session/types';
+import { test } from '../../../fixtures';
+import { UserSession } from '../../../utils/session/types';
 
 test.describe.serial('📸 Snapshot comparison of video streams', () => {
   const userNames = ['Bob', 'Alice', 'Claire'] as const;

@@ -1,6 +1,6 @@
-import { test } from '../fixtures';
-import { User, UserSession } from '../utils/session/types';
-import { Call } from '../utils/session/call';
+import { test } from '../../../fixtures';
+import { User, UserSession } from '../../../utils/session/types';
+import { Call } from '../../../utils/session/call';
 import { faker } from '@faker-js/faker';
 
 test.describe.serial('🔒 Multi-user WebRTC Scenarios', () => {

@@ -16,7 +16,5 @@
     "utils",
     "config",
     "global-setup.ts",
-    "playwright.config.ts",
-    "snapshots/snapshot-video.spec.ts"
-  ]
+    "playwright.config.ts",  ]
 }

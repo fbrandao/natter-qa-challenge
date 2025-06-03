@@ -1,32 +1,40 @@
 import { defineConfig, devices } from '@playwright/test';
 import { config } from './config/env';
 import os from 'os';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get the root directory path
+const __filename = fileURLToPath(import.meta.url);
+const rootDir = path.dirname(__filename);
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: path.join(rootDir, 'tests/functional/e2e'),
   timeout: config.env.isCI ? 60000 : 30000,
   fullyParallel: false,
   forbidOnly: !!config.env.isCI,
   retries: config.env.isCI ? 1 : 0,
   workers: 1,
-  snapshotDir: config.env.isCI ? './snapshots/ci' : './snapshots/local',
+  snapshotDir: config.env.isCI 
+    ? path.join(rootDir, 'snapshots/ci') 
+    : path.join(rootDir, 'snapshots/local'),
   expect: {
     timeout: config.env.isCI ? 10000 : 5000,
     toHaveScreenshot: {
-      pathTemplate: `snapshots/${config.env.environment}/{testFilePath}/{arg}-{platform}{ext}`,
+      pathTemplate: path.join(rootDir, 'snapshots', config.env.environment, '{testFilePath}', '{arg}-{platform}{ext}'),
     },
   },
   reporter: !config.env.isCI
     ? [
-        ['html', { outputFolder: `./reports/e2e`, open: 'never' }],
+        ['html', { outputFolder: path.join(rootDir, 'reports/e2e'), open: 'never' }],
         ['line'],
-        ['junit', { outputFile: `./reports/e2e/results.xml` }],
-        ['json', { outputFile: `./reports/e2e/results.json` }],
+        ['junit', { outputFile: path.join(rootDir, 'reports/e2e/results.xml') }],
+        ['json', { outputFile: path.join(rootDir, 'reports/e2e/results.json') }],
         ['github'],
         [
           'playwright-ctrf-json-reporter',
           {
-            outputFile: 'ctrf/reports/e2e/ctrf.json',
+            outputFile: path.join(rootDir, 'ctrf/reports/e2e/ctrf.json'),
             appName: 'Natter QA Challenge',
             appVersion: '1.0.0',
             osPlatform: os.platform(),
@@ -38,9 +46,13 @@ export default defineConfig({
           },
         ],
       ]
-    : [['html', { outputFolder: `./reports/e2e`, open: 'on-failure' }], ['line']],
+    : [
+        ['html', { outputFolder: path.join(rootDir, 'reports/e2e'), open: 'on-failure' }], 
+        ['line'], 
+        ['@artilleryio/playwright-reporter', { name: 'Natter QA Challenge' }]
+      ],
 
-  globalSetup: './global-setup.ts',
+  globalSetup: path.join(rootDir, 'global-setup.ts'),
 
   use: {
     trace: 'on',
@@ -79,6 +91,6 @@ export default defineConfig({
         baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
         headless: false,
       },
-    },
+    },    
   ],
 });

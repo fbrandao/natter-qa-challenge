@@ -1,0 +1,14 @@
+{
+    "name": "e2e",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {      
+        "test": "playwright test --config ../../playwright.config.ts",
+        "test:ui": "playwright test --ui --config ../../playwright.config.ts",
+        "test:update": "playwright test --update-snapshots --config ../../playwright.config.ts",
+        "test:debug": "playwright test --debug --config ../../playwright.config.ts",
+        "test:headed": "playwright test --headed --config ../../playwright.config.ts",
+        "report": "playwright show-report --config ../../playwright.config.ts"  
+    }
+  }

@@ -34,8 +34,8 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-  test:
-    name: Playwright Tests
+  functional-tests:
+    name: Playwright E2E Tests
     needs: setup
     runs-on: ubuntu-latest
     container:
@@ -67,9 +67,9 @@ jobs:
       - name: Run All Tests
         run: |
           if [ "$UPDATE_SNAPSHOTS" = "true" ]; then
-            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:update
+            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:e2e:update
           else
-            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test
+            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:e2e
           fi
 
       - name: Upload E2E Test Report
@@ -95,3 +95,18 @@ jobs:
           name: snapshots-${{ github.run_id }}
           path: snapshots/ci
           retention-days: 14
+
+  performance-tests:
+    name: Artillery Performance Tests - Playwright Engine
+    needs: [setup, functional-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Execute load tests
+        uses: artilleryio/action-cli@v1
+        env:
+          ARTILLERY_API_KEY: ${{ secrets.ARTILLERY_API_KEY }}
+        with:
+          command: run tests/performance/join-call.ts --record
+  
