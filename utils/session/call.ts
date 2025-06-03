@@ -19,7 +19,7 @@ export class Call {
       const videoPath = user.videoPathOverride ?? this.getVideoPath();
 
       const browser = await this.browserType.launch({
-        headless: true,
+        headless: false,
         args: [
           '--use-fake-device-for-media-stream',
           '--use-fake-ui-for-media-stream',
