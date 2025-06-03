@@ -98,7 +98,7 @@ export class VideoCallPage extends BasePage {
    * @param videoLocator The Locator for the video element.
    */
   private async isVideoPlaying(videoLocator: Locator): Promise<boolean> {
-    const isActuallyPlaying = await videoLocator.evaluate((el: HTMLVideoElement) => {
+    const videoState = await videoLocator.evaluate((el: HTMLVideoElement) => {
       const isVisible =
         el.offsetParent !== null && !el.hidden && getComputedStyle(el).display !== 'none';
       const readyState = el.readyState;
@@ -106,24 +106,23 @@ export class VideoCallPage extends BasePage {
       const videoHeight = el.videoHeight;
       const isPaused = el.paused;
 
-      this.logger.debug('Video state check', {
+      return {
         elementId: el.id || el.className || 'N/A',
         isVisible,
         readyState,
         dimensions: `${videoWidth}x${videoHeight}`,
         isPaused
-      });
-
-      return (
-        isVisible &&
-        (readyState === 4 || readyState === 3) &&
-        videoWidth > 0 &&
-        videoHeight > 0 &&
-        !isPaused
-      );
+      };
     });
 
-    return isActuallyPlaying;
+    this.logger.debug('Video state check', videoState);
+
+    return (
+      videoState.isVisible &&
+      (videoState.readyState === 4 || videoState.readyState === 3) &&
+      videoState.dimensions !== '0x0' &&
+      !videoState.isPaused
+    );
   }
 
   /**
