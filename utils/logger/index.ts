@@ -6,7 +6,7 @@ const levels = {
   warn: 1,
   info: 2,
   debug: 3,
-  header: 4, // New level for headers
+  header: 4,
 };
 
 // Define colors for each level
@@ -52,16 +52,20 @@ const logger = winston.createLogger({
       
       // Special formatting for headers
       if (level === 'header') {
-        const headerLine = '='.repeat((message as string).length + 4);
+        const headerLine = '='.repeat(80);
         return `\n${headerLine}\n${icon} ${message}\n${headerLine}\n`;
       }
       
       // Regular log message formatting
-      let msg = `\n${timestamp} ${icon} ${levelUpper}: ${message}`;
+      let msg = `${timestamp} ${icon} [${levelUpper}] ${message}`;
       
       // Add metadata in a more readable format if it exists
       if (Object.keys(metadata).length > 0) {
-        msg += '\n' + JSON.stringify(metadata, null, 2);
+        const metaStr = JSON.stringify(metadata, null, 2)
+          .split('\n')
+          .map(line => `  ${line}`)
+          .join('\n');
+        msg += `\n${metaStr}`;
       }
       
       return msg;

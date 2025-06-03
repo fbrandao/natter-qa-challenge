@@ -27,12 +27,11 @@ const videoFiles = [
 
 // Verify video files exist
 const selectedVideoFile = faker.helpers.arrayElement(videoFiles);
-logger.debug('Selected video file:', selectedVideoFile);
+
 if (!fs.existsSync(selectedVideoFile)) {
   logger.error(`Video file not found: ${selectedVideoFile}`);
   throw new Error(`Video file not found: ${selectedVideoFile}`);
 }
-logger.info('Video file exists and is accessible');
 
 export const config = {
   target: 'https://webdemo.agora.io/basicVideoCall/index.html',
@@ -76,9 +75,12 @@ export const config = {
           `--use-file-for-fake-video-capture=${selectedVideoFile}`
         ]
       },
-      timeout: 60000, // 60 seconds
-      navigationTimeout: 60000, // 60 seconds
-      actionTimeout: 30000 // 30 seconds
+      timeout: 60000,
+      navigationTimeout: 60000,
+      actionTimeout: 30000,
+      expect: {
+        timeout: 10000
+      }
     }
   },
   phases: [
