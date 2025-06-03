@@ -100,13 +100,13 @@ jobs:
     name: Artillery Performance Tests - Playwright Engine
     needs: [setup, functional-tests]
     runs-on: ubuntu-latest
+    env:
+      ARTILLERY_API_KEY: ${{ secrets.ARTILLERY_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Execute load tests
         uses: artilleryio/action-cli@v1
-        env:
-          ARTILLERY_API_KEY: ${{ secrets.ARTILLERY_API_KEY }}
         with:
           command: run tests/performance/join-call.ts --record
   
