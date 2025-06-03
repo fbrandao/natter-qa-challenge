@@ -16,16 +16,17 @@ test.beforeEach(async ({ page }, testInfo) => {
   logger.info(`Test File: ${testInfo.file}`);
   logger.info(`Test Line: ${testInfo.line}`);
   
-  await test.step('Run media device health checks', async () => {
+  await test.step('Setup', async () => {
     await runHealthChecks(page);
   });
 });
 
-test.afterEach(async (_, testInfo) => {
+test.afterEach(async ({ }, testInfo) => {
   const status = testInfo.status === 'passed' ? '✅ PASSED' : '❌ FAILED';
   logger.header(`Test Complete: ${testInfo.title}`);
   logger.info(`Status: ${status}`);
   logger.info(`Duration: ${testInfo.duration}ms`);
+  logger.header('='.repeat(80));
 });
 
 export { baseExpect as expect };
