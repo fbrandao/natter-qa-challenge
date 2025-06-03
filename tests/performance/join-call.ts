@@ -21,9 +21,9 @@ export const config = {
     },
     ensure: {
       thresholds: {
-        'webrtc.user.joined': 0.95,
-        'webrtc.local_video.success': 0.95,
-        'webrtc.error': 0.05
+        '✅ WebRTC - User Successfully Joined Call': 0.95,
+        '🎥 WebRTC - Local Video Playback Success': 0.95,
+        '❌ WebRTC - Errors Encountered': 0.05
       }
     }
   },
@@ -82,10 +82,10 @@ async function joinCallFlow(page: Page, vuContext: any, events: any, test: { ste
       );
       
       await videoCallPage.expectSuccessAlert();
-      events.emit('counter', 'webrtc.user.joined', 1);
+      events.emit('counter', '✅ WebRTC - User Successfully Joined Call', 1);
       
       await videoCallPage.expectLocalVideoPlaying(1);
-      events.emit('counter', 'webrtc.local_video.success', 1);
+      events.emit('counter', '🎥 WebRTC - Local Video Playback Success', 1);
     });
 
     await test.step('Leave call', async () => {
@@ -99,7 +99,7 @@ async function joinCallFlow(page: Page, vuContext: any, events: any, test: { ste
       path: path.join(appConfig.paths.reports, `error-${userId}.png`),
       fullPage: true 
     });
-    events.emit('counter', 'webrtc.error', 1);
+    events.emit('counter', '❌ WebRTC - Errors Encountered', 1);
     throw error;
   }
 }
