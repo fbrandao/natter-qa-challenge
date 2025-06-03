@@ -48,8 +48,7 @@ export default defineConfig({
       ]
     : [
         ['html', { outputFolder: path.join(rootDir, 'reports/e2e'), open: 'on-failure' }], 
-        ['line'], 
-        ['@artilleryio/playwright-reporter', { name: 'Natter QA Challenge' }]
+        ['line']
       ],
 
   globalSetup: path.join(rootDir, 'global-setup.ts'),
