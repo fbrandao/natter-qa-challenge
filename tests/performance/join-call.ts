@@ -7,7 +7,6 @@ import { defaultLogger } from '../../utils/logger';
 
 const logger = defaultLogger.withContext('PerformanceTest');
 
-// Setup video file
 const videoFile = path.join(appConfig.paths.videos, 'randomUsers/silent_qcif.y4m');
 if (!fs.existsSync(videoFile)) {
   logger.error(`Video file not found: ${videoFile}`);
@@ -45,13 +44,18 @@ export const config = {
   },
   phases: [
     { duration: 10, arrivalRate: 1, name: 'Warm up' },
-    { duration: 10, arrivalRate: 2, name: 'Load' }
+    { duration: 10, arrivalRate: 2, name: 'Load' },
+    { duration: 10, arrivalRate: 5, name: 'Ramp up' },
+    { duration: 10, arrivalRate: 10, name: 'Heavy Load' },
+    { duration: 5, arrivalRate: 15, name: 'Spike' },
+    { duration: 10, arrivalRate: 2, name: 'Recovery' }
   ],
   metrics: {
-    'webrtc.user.joined': 'counter',
-    'webrtc.local_video.success': 'counter',
-    'webrtc.error': 'counter'
+    '✅ WebRTC - User Successfully Joined Call': 'counter',
+    '🎥 WebRTC - Local Video Playback Success': 'counter',
+    '❌ WebRTC - Errors Encountered': 'counter'
   }
+  
 };
 
 export const scenarios = [
