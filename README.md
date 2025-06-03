@@ -197,6 +197,8 @@ npm run format:check # Check formatting
 
 - **Performance Tests**: Generated in `reports/performance/`
   - Json reports from artillery
+  - [Artillery Cloud Example Dashboard](https://app.artillery.io/share/sh_6df86d64045c731da42c4e9ea5a3d84275a681192712ef80eeb8909a8e97551b)
+
 
 ---
 

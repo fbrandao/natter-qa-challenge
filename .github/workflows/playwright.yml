@@ -71,12 +71,12 @@ jobs:
           else
             xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:e2e
           fi
-
-      - name: list files from root and ctrf/reports/e2e
+      - name: List files after E2E Tests
         run: |
-          ls -la
-          ls -la ctrf/reports/e2e
-          ls -la reports/
+          echo "Root directory:" && ls -la
+          echo "ctrf/reports/e2e:" && ls -la ctrf/reports/e2e || true
+          echo "reports/e2e:" && ls -la reports/e2e || true
+          echo "test-results:" && ls -la test-results || true
 
       - name: Upload E2E Test Reports
         if: always()
@@ -88,12 +88,26 @@ jobs:
             ctrf/reports/e2e
           retention-days: 14
 
+      - name: List files after Upload E2E Test Reports
+        run: |
+          echo "Root directory:" && ls -la
+          echo "ctrf/reports/e2e:" && ls -la ctrf/reports/e2e || true
+          echo "reports/e2e:" && ls -la reports/e2e || true
+          echo "test-results:" && ls -la test-results || true
+
       - name: Publish CTRF Test Report
         if: always()
         uses: ctrf-io/github-test-reporter@v1
         with:
           report-path: ctrf/reports/e2e/ctrf.json
-      
+
+      - name: List files after Publish CTRF Test Report
+        run: |
+          echo "Root directory:" && ls -la
+          echo "ctrf/reports/e2e:" && ls -la ctrf/reports/e2e || true
+          echo "reports/e2e:" && ls -la reports/e2e || true
+          echo "test-results:" && ls -la test-results || true
+
       - name: Upload Test Snapshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -133,4 +147,10 @@ jobs:
 
       - name: Run Load Tests
         run: npm run test:performance:record
+      - name: List files after Load Tests
+        run: |
+          echo "Root directory:" && ls -la
+          echo "ctrf/reports/e2e:" && ls -la ctrf/reports/e2e || true
+          echo "reports/e2e:" && ls -la reports/e2e || true
+          echo "test-results:" && ls -la test-results || true
 
