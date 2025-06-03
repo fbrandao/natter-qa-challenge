@@ -1,6 +1,7 @@
 import { Locator, Page, expect, Response } from '@playwright/test';
 import { BasePage } from '../base/basePage';
 import { User } from '../../utils/session/types';
+import { defaultLogger } from '../../utils/logger';
 
 interface ApiRequest {
   method: string;
@@ -8,6 +9,7 @@ interface ApiRequest {
 }
 
 export class VideoCallPage extends BasePage {
+  private logger = defaultLogger.withContext('VideoCallPage');
 
   readonly appIdInput: Locator = this.page.getByRole('textbox', { name: 'Enter the appid' });
   readonly tokenInput: Locator = this.page.getByRole('textbox', { name: 'Enter the app token' });
@@ -63,17 +65,19 @@ export class VideoCallPage extends BasePage {
   }
 
   async navigateAndJoin(appId: string, token: string, channel: string, userId?: string) {
+    this.logger.debug('Navigating to video call page');
     await this.goto('');
     await this.appIdInput.fill(appId);
     await this.tokenInput.fill(token);
     await this.channelInput.fill(channel);
     if (userId) await this.userIdInput.fill(userId);
 
+    this.logger.debug('Joining call and waiting for API response');
     await this.waitForActionAndApiResponses({
       requests: [
         {
           method: 'POST',
-          url: 'webrtc2-ap-web-1.agora.io/api/v2/transpond/webrtc', // Consider moving to config
+          url: 'webrtc2-ap-web-1.agora.io/api/v2/transpond/webrtc',
         },
       ],
       action: () => this.joinButton.click(),
@@ -82,8 +86,9 @@ export class VideoCallPage extends BasePage {
 
   async leaveCall() {
     if (await this.leaveButton.isVisible()) {
+      this.logger.debug('Leaving call');
       await this.leaveButton.click();
-      // Wait for the local video container to become hidden after leaving
+      this.logger.debug('Waiting for local video to hide');
       await this.localVideoContainer.waitFor({ state: 'hidden', timeout: 10000 });
     }
   }
@@ -101,13 +106,13 @@ export class VideoCallPage extends BasePage {
       const videoHeight = el.videoHeight;
       const isPaused = el.paused;
 
-      // --- DEBUG LOGGING (CRUCIAL FOR UNDERSTANDING FAILURE) ---
-      console.log(
-        `[DEBUG_VIDEO_CHECK] Video State: Locator=${el.id || el.className || 'N/A'}, ` +
-          `Visible=${isVisible}, ReadyState=${readyState}, ` +
-          `Dimensions=${videoWidth}x${videoHeight}, Paused=${isPaused}`
-      );
-      // --- END DEBUG LOGGING ---
+      this.logger.debug('Video state check', {
+        elementId: el.id || el.className || 'N/A',
+        isVisible,
+        readyState,
+        dimensions: `${videoWidth}x${videoHeight}`,
+        isPaused
+      });
 
       return (
         isVisible &&
@@ -129,11 +134,11 @@ export class VideoCallPage extends BasePage {
    * @param timeout The maximum time to wait for the assertion to pass (default: 15000ms).
    */
   async expectVideosPlaying(locator: Locator, expectedCount: number, timeout: number = 15000) {
+    this.logger.debug(`Expecting ${expectedCount} videos to be playing`);
     await expect(async () => {
       const videos = await locator.all();
       expect(videos.length).toBe(expectedCount);
       for (const video of videos) {
-        // Ensure each video is actively playing
         expect(await this.isVideoPlaying(video)).toBeTruthy();
       }
     }).toPass({ timeout, intervals: [1000, 2000, 3000] });
@@ -146,6 +151,7 @@ export class VideoCallPage extends BasePage {
    * @param timeout The maximum time to wait for the assertion to pass (default: 15000ms).
    */
   async expectLocalVideoPlaying(count: number, timeout: number = 15000) {
+    this.logger.debug(`Expecting ${count} local videos to be playing`);
     await this.expectVideosPlaying(this.localVideoContainer, count, timeout);
   }
 
@@ -157,6 +163,7 @@ export class VideoCallPage extends BasePage {
    * @param timeout The maximum time to wait for the assertion to pass (default: 15000ms).
    */
   async expectRemoteVideosPlaying(count: number, timeout: number = 15000) {
+    this.logger.debug(`Expecting ${count} remote videos to be playing`);
     await this.expectVideosPlaying(this.remoteVideoContainer, count, timeout);
   }
 
@@ -167,21 +174,22 @@ export class VideoCallPage extends BasePage {
    * @param timeout The maximum time to wait for the assertion to pass (default: 10000ms).
    */
   private async expectNoVideosPlaying(locator: Locator, timeout: number = 10000) {
+    this.logger.debug('Checking for absence of playing videos');
     await expect(async () => {
       const videos = await locator.all();
       if (videos.length === 0) {
-        // console.log(`No video elements found for locator '${locator.toString()}', as expected.`);
-        return; // Test passes if no elements are found
+        this.logger.debug('No video elements found, as expected');
+        return;
       }
 
       let anyVideoPlaying = false;
       for (const video of videos) {
         if (await this.isVideoPlaying(video)) {
           anyVideoPlaying = true;
-          break; // Found a playing video, fail the assertion
+          break;
         }
       }
-      expect(anyVideoPlaying).toBeFalsy(); // Assert that no video is playing
+      expect(anyVideoPlaying).toBeFalsy();
     }).toPass({ timeout, intervals: [1000, 2000, 3000] });
   }
 
@@ -191,6 +199,7 @@ export class VideoCallPage extends BasePage {
    * @param timeout The maximum time to wait for the assertion to pass (default: 10000ms).
    */
   async expectNoLocalVideoPlaying(timeout: number = 10000) {
+    this.logger.debug('Checking for absence of local video');
     await this.expectNoVideosPlaying(this.localVideoContainer, timeout);
   }
 
@@ -200,6 +209,7 @@ export class VideoCallPage extends BasePage {
    * @param timeout The maximum time to wait for the assertion to pass (default: 10000ms).
    */
   async expectNoRemoteVideoPlaying(timeout: number = 10000) {
+    this.logger.debug('Checking for absence of remote videos');
     await this.expectNoVideosPlaying(this.remoteVideoContainer, timeout);
   }
 
@@ -220,12 +230,13 @@ export class VideoCallPage extends BasePage {
    */
   async expectRemoteUserVideoPlaying(user: User, timeout: number = 15000) {
     const userVideo = this.getRemoteVideoByUserId(user.userId);
-    console.log(`Checking if remote video for user ${user.userId} is playing...`);
-    console.log(userVideo.toString());
+    this.logger.debug(`Checking remote video for user ${user.userId}`);
+    
     await expect(async () => {
       expect(await this.isVideoPlaying(userVideo)).toBeTruthy();
     }).toPass({ timeout, intervals: [1000, 2000, 3000] });
-    console.log(`Remote video for user ${user.userId} is playing.`);
+    
+    this.logger.info(`Remote video for user ${user.userId} is playing`);
   }
 
   /**
@@ -235,14 +246,16 @@ export class VideoCallPage extends BasePage {
    */
   async expectNoRemoteUserVideoPlaying(user: User, timeout: number = 10000) {
     const userVideo = this.getRemoteVideoByUserId(user.userId);
-    const errorMessage = `Remote video for user ID ${user.userId} is still visible/playing after ${timeout}ms, but it should not be.`;
+    const errorMessage = `Remote video for user ID ${user.userId} is still visible/playing after ${timeout}ms`;
 
+    this.logger.debug(`Checking absence of remote video for user ${user.userId}`);
+    
     await expect(async () => {
-      // Pass a custom message to the expect call
       const isVisible = await userVideo.isVisible();
       expect(isVisible, errorMessage).toBeFalsy();
     }).toPass({ timeout, intervals: [1000, 2000, 3000] });
-    console.log(`Remote video for user ID ${user.userId} is not playing (or not visible).`);
+    
+    this.logger.info(`Remote video for user ${user.userId} is not playing`);
   }
 
   /**
@@ -272,13 +285,14 @@ export class VideoCallPage extends BasePage {
     const remoteUserIds = await this.getActiveRemoteUserIds();
     const snapshotName = label ? `video-grid-${label}.png` : `video-grid-snapshot.png`;
 
-    console.log(`[DEBUG_SNAPSHOT] Starting snapshot process for ${snapshotName}`);
-    console.log(`[DEBUG_SNAPSHOT] Active remote users: ${remoteUserIds.length}`);
-    console.log(`[DEBUG_SNAPSHOT] Remote user IDs: ${remoteUserIds.join(', ')}`);
+    this.logger.debug('Starting snapshot process', {
+      snapshotName,
+      remoteUserCount: remoteUserIds.length,
+      remoteUserIds
+    });
 
-    // Single user: snapshot only local player container
     if (remoteUserIds.length === 0) {
-      console.log(`[DEBUG_SNAPSHOT] Taking single user snapshot of local video container`);
+      this.logger.debug('Taking single user snapshot of local video');
       await expect(this.localVideoContainer).toHaveScreenshot(snapshotName, {
         animations: 'disabled',
         caret: 'hide',
@@ -288,8 +302,7 @@ export class VideoCallPage extends BasePage {
         timeout: 10000,
       });
     } else {
-      // Multi-user: snapshot the full video grid
-      console.log(`[DEBUG_SNAPSHOT] Taking multi-user snapshot of full video grid`);
+      this.logger.debug('Taking multi-user snapshot of video grid');
       await expect(this.videoGrid).toHaveScreenshot(snapshotName, {
         animations: 'disabled',
         caret: 'hide',
@@ -299,6 +312,7 @@ export class VideoCallPage extends BasePage {
         timeout: 10000,
       });
     }
-    console.log(`[DEBUG_SNAPSHOT] Snapshot completed for ${snapshotName}`);
+    
+    this.logger.info(`Snapshot completed: ${snapshotName}`);
   }
 }
