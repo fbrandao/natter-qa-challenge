@@ -9,6 +9,8 @@ A modern end-to-end testing framework for WebRTC applications, built with **Play
 
 > **Important Note**: Due to credential constraints, all tests must use the same single call credentials. This means all users join the same call, making proper session management and cleanup crucial for test reliability.
 
+> **Bonus Feature**: The performance testing suite using Artillery was added as a bonus feature to demonstrate load testing capabilities. While not part of the core requirements, it showcases how to implement concurrent user simulation and performance monitoring in a WebRTC application.
+
 ---
 
 ## 📁 Project Structure
@@ -47,162 +49,34 @@ The framework uses a robust session management system to handle multiple concurr
 ```ts
 class SessionManager {
   private calls: Call[] = [];
-  private videoFiles: string[];
-
-  constructor(browserType: BrowserType, config: CallConfig) {
-    // Single call configuration shared across all users
-    this.config = {
-      appId: process.env.AGORA_APP_ID,
-      token: process.env.AGORA_TOKEN,
-      channel: process.env.AGORA_CHANNEL,
-      ...config
-    };
-    
-    this.videoFiles = [
-      '/videos/randomUsers/salesman_qcif.y4m',
-      '/videos/randomUsers/sign_irene_qcif.y4m',
-      '/videos/randomUsers/silent_qcif.y4m',
-      '/videos/randomUsers/suzie_qcif.y4m',
-    ];
-  }
-
-  async newCall(config?: CallConfig): Promise<Call> {
-    // All calls use the same credentials
-    const call = new Call(this.browserType, this.config, this.getRandomVideoFilePath);
+  
+  async newCall(): Promise<Call> {
+    const call = new Call(this.browserType, this.config);
     this.calls.push(call);
     return call;
   }
 
-  createUsers(count: number, baseName = 'User'): User[] {
-    return Array.from({ length: count }, (_, i) => ({
-      userId: faker.number.int({ min: 10000, max: 99999 }),
-      testUserName: `${baseName}${i + 1}`,
-      videoPathOverride: this.getRandomVideoFilePath(),
-    }));
-  }
-
   async cleanup(): Promise<void> {
-    // Critical: Ensure all users leave the call
-    this.logger.header(`Starting cleanup of ${this.calls.length} calls`);
-    const callsToCleanup = [...this.calls];
-    for (const call of callsToCleanup) {
-      try {
-        this.logger.debug('Cleaning up call...');
-        await call.cleanup();
-        this.logger.debug('Call cleanup complete');
-      } catch (error) {
-        this.logger.error('Error during call cleanup:', error);
-      }
-    }
+    await Promise.all(this.calls.map(call => call.cleanup()));
     this.calls = [];
-    this.logger.info('All calls cleaned up');
   }
 }
-```
-
-### ✅ Call Management
-
-Each call instance manages its own lifecycle and user sessions. Since all users join the same call, proper cleanup is essential:
-
-```ts
-class Call {
-  private users: User[] = [];
-  private browserContext: BrowserContext;
-
-  async addUser(user: User): Promise<UserSession> {
-    // All users join the same call with shared credentials
-    const session = new UserSession(this.browserContext, user);
-    await session.initialize();
-    this.users.push(user);
-    return session;
-  }
-
-  async cleanup(): Promise<void> {
-    // Ensure all users leave before closing
-    await Promise.all(this.users.map(user => user.cleanup()));
-    await this.browserContext.close();
-  }
-}
-```
-
-### ✅ Video File Management
-
-The framework uses a collection of pre-recorded video files to simulate real users. Since all users are in the same call, we use different video files to simulate various user behaviors:
-
-1. **Video Files**:
-   - Located in `videos/randomUsers/`
-   - Multiple video files for different scenarios
-   - QCIF format for optimal performance
-   - Various user behaviors (talking, signing, silent)
-
-2. **Video Assignment**:
-   - Random video assignment for users
-   - Override capability for specific test cases
-   - Automatic cleanup after tests
-
-Example usage:
-```ts
-// Create a call with shared credentials
-const call = await sessionManager.newCall();
-
-// Create users that will join the same call
-const users = sessionManager.createUsers(3, 'TestUser');
-const user1 = await call.addUser(users[0]); // Gets random video
-const user2 = await call.addUser({
-  ...users[1],
-  videoPathOverride: '/videos/randomUsers/salesman_qcif.y4m'
-}); // Gets specific video
-
-// Important: Clean up all users before test ends
-await call.cleanup();
 ```
 
 ### ✅ Page Object Model (POM)
 
-- Every page is encapsulated in a class
-- Shared components are modularized
-- Common base classes reduce duplication
-- Fixture initialization for faster and cleaner test execution
-
-Example usage:
+Every page is encapsulated in a class with shared components and common base classes:
 
 ```ts
-// Page Object
 class VideoCallPage extends BasePage {
   readonly joinButton = this.page.getByTestId('join-button');
-  readonly leaveButton = this.page.getByTestId('leave-button');
   readonly localVideo = this.page.getByTestId('local-video');
 
   async joinCall(appId: string, token: string, channel: string, userId: string) {
     await this.joinButton.click();
-    await this.expectSuccessAlert();
     await this.expectLocalVideoPlaying(1);
   }
-
-  async leaveCall() {
-    await this.leaveButton.click();
-    await this.expectNoLocalVideoPlaying();
-  }
 }
-
-// Example
-test('should join and leave call successfully', async ({ page, videoCallPage }) => {
-  await videoCallPage.joinCall(appId, token, channel, userId);
-  await videoCallPage.leaveCall();
-});
-```
-
-### ✅ Logging System
-
-Uses Winston for structured logging with context awareness:
-
-```ts
-const logger = defaultLogger.withContext('VideoCall');
-
-logger.header('Starting video call test');
-logger.info('Joining call with user:', { userId });
-logger.debug('Video state:', { isPlaying: true });
-logger.error('Call failed:', error);
 ```
 
 ---
@@ -218,15 +92,6 @@ logger.error('Call failed:', error);
 - Error handling scenarios
 - Call leaving behavior
 
-Example:
-```ts
-test('should join call and play local video', async ({ page, videoCallPage }) => {
-  await videoCallPage.joinCall(appId, token, channel, userId);
-  await videoCallPage.expectLocalVideoPlaying(1);
-  await videoCallPage.expectSuccessAlert();
-});
-```
-
 #### 2. Multi-User Tests
 - Multiple concurrent users
 - User session management
@@ -234,31 +99,11 @@ test('should join call and play local video', async ({ page, videoCallPage }) =>
 - User presence indicators
 - Chat functionality
 
-Example:
-```ts
-test('should handle multiple users in call', async ({ sessionManager }) => {
-  const call = await sessionManager.newCall();
-  const user1 = await call.addUser(users.Alice);
-  const user2 = await call.addUser(users.Bob);
-  
-  await user1.ui.expectRemoteVideoPlaying(1);
-  await user2.ui.expectRemoteVideoPlaying(1);
-});
-```
-
 #### 3. Visual Regression Tests
 - UI component snapshots
 - Layout verification
 - Responsive design checks
 - Visual state validation
-
-Example:
-```ts
-test('should match video call UI snapshot', async ({ page, videoCallPage }) => {
-  await videoCallPage.joinCall(appId, token, channel, userId);
-  await expect(page).toHaveScreenshot('video-call-ui.png');
-});
-```
 
 ### 🔹 Performance Test Categories
 
@@ -267,12 +112,6 @@ test('should match video call UI snapshot', async ({ page, videoCallPage }) => {
   - WebRTC metrics collection
   - Performance thresholds
   - Resource utilization
-
-- **Stress Testing**:
-  - Maximum user capacity
-  - Network condition simulation
-  - Error recovery
-  - System stability
 
 ### 🔹 Features
 

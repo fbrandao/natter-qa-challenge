@@ -34,7 +34,7 @@ export default defineConfig({
         [
           'playwright-ctrf-json-reporter',
           {
-            outputFile: './ctrf/reports/e2e/ctrf.json',
+            outputFile: './reports/e2e/ctrf.json',
             appName: 'Natter QA Challenge',
             appVersion: '1.0.0',
             osPlatform: os.platform(),
