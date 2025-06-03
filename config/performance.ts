@@ -10,10 +10,12 @@ const isCI = CI;
 const isTest = NODE_ENV === 'test';
 const isProduction = NODE_ENV === 'production';
 const isLocal = !isCI && !isProduction && !isTest;
+const rootDir = path.resolve(__dirname, '..');
+const reportsDir = path.resolve(rootDir, 'reports/performance');
 
 // Load .env only in local
 if (isLocal) {
-  const envPath = path.resolve(__dirname, '../../../.env');
+  const envPath = path.resolve(rootDir, '.env');
   dotenv.config({ path: envPath });
 }
 
@@ -26,7 +28,7 @@ function getEnvVar(key: string, required = false) {
 const config = {
   paths: {
     videos: path.resolve(__dirname, '../../../videos'),
-    reports: path.resolve(__dirname, '../../../reports/performance')
+    reports: reportsDir
   },
   auth: {
     agora: {

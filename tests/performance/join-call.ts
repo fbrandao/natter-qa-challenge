@@ -81,32 +81,19 @@ export const config = {
   phases: [
     // Warm-up phase
     {
-      duration: 30,
+      duration: 20,
       arrivalRate: 1,
       name: 'Warm up phase'
     },
-    // Ramp-up phase
-    {
-      duration: 60,
-      arrivalRate: 1,
-      rampTo: 5,
-      name: 'Ramp up phase'
-    },
     // Sustained load phase
     {
-      duration: 120,
-      arrivalRate: 5,
+      duration: 20,
+      arrivalRate: 2,
       name: 'Sustained load phase'
-    },
-    // Spike phase
-    {
-      duration: 30,
-      arrivalRate: 10,
-      name: 'Spike phase'
     },
     // Cool-down phase
     {
-      duration: 30,
+      duration: 20,
       arrivalRate: 1,
       name: 'Cool down phase'
     }

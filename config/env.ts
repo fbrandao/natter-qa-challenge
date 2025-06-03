@@ -26,12 +26,9 @@ const environment = isLocal
         : 'local';
 
 // Load .env only in local
-if (isLocal) {
-  // Try to load .env from both current directory and root directory
+if (isLocal) {  
   const rootDir = path.resolve(dirname, '..');
   dotenv.config({ path: path.resolve(rootDir, '.env') });
-  // Also try current directory as fallback
-  dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 }
 
 /**

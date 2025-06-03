@@ -15,27 +15,27 @@ on:
 
 jobs:
   setup:
-    name: Setup & Install
+    name: Setup Dependencies
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.52.0-jammy
       options: --user 1001
     timeout-minutes: 10
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Cache node_modules
+      - name: Cache Node Modules
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
-      - name: Install Dependencies
+      - name: Install Node Dependencies
         run: npm ci
 
   functional-tests:
-    name: Functional Tests - Playwright
+    name: Run Functional Tests - Playwright
     needs: setup
     runs-on: ubuntu-latest
     container:
@@ -49,30 +49,34 @@ jobs:
       AGORA_CHANNEL: ${{ secrets.AGORA_CHANNEL }}
       UPDATE_SNAPSHOTS: ${{ github.event.inputs.update_snapshots || false }}
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Restore node_modules Cache
+      - name: Restore Node Modules Cache
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
-      - name: Install Dependencies
+      - name: Install Node Dependencies
         run: npm ci
 
-      - name: Ensure CTRF report directory exists
+      - name: Create Test Report Directory
         run: mkdir -p ctrf/reports/e2e
 
-      - name: Run All Tests
+      - name: Run E2E Tests
         run: |
           if [ "$UPDATE_SNAPSHOTS" = "true" ]; then
             xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:e2e:update
           else
             xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:e2e
           fi
-
-      - name: Upload E2E Test Report
+      - name: list files from root and ctrf/reports/e2e
+        run: |
+          ls -la
+          ls -la ctrf/reports/e2e
+          ls -la reports/
+      - name: Upload E2E Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -82,13 +86,13 @@ jobs:
             ctrf/reports/e2e
           retention-days: 14
 
-      - name: Publish Test Report (CTRF JSON)
+      - name: Publish CTRF Test Report
         if: always()
         uses: ctrf-io/github-test-reporter@v1
         with:
           report-path: ctrf/reports/e2e/ctrf.json
       
-      - name: Upload Snapshots
+      - name: Upload Test Snapshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -97,29 +101,29 @@ jobs:
           retention-days: 14
 
   performance-tests:
-    name: Performance Tests - Artillery
+    name: Run Performance Tests - Artillery
     needs: [setup, functional-tests]
     runs-on: ubuntu-latest
     env:
       ARTILLERY_API_KEY: ${{ secrets.ARTILLERY_API_KEY }}
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 24
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - name: Restore node_modules Cache
+      - name: Restore Node Modules Cache
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
-      - name: Install Dependencies
+      - name: Install Node Dependencies
         run: npm ci
 
-      - name: Execute load tests with xvfb
+      - name: Run Load Tests with XVFB
         run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:performance:record
 
