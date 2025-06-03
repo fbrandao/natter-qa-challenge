@@ -24,7 +24,7 @@ export default defineConfig({
       pathTemplate: path.join(rootDir, 'snapshots', config.env.environment, '{testFilePath}', '{arg}-{platform}{ext}'),
     },
   },
-  reporter: !config.env.isCI
+  reporter: config.env.isCI
     ? [
         ['html', { outputFolder: path.join(rootDir, 'reports/e2e'), open: 'never' }],
         ['line'],

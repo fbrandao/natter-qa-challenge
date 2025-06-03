@@ -68,9 +68,9 @@ jobs:
       - name: Run E2E Tests
         run: |
           if [ "$UPDATE_SNAPSHOTS" = "true" ]; then
-            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:e2e:update
+            npm run test:e2e:update
           else
-            xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:e2e
+            npm run test:e2e
           fi
       - name: list files from root and ctrf/reports/e2e
         run: |
@@ -131,5 +131,5 @@ jobs:
         run: npm ci
 
       - name: Run Load Tests with XVFB
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npm run test:performance:record
+        run: npm run test:performance:record
 
