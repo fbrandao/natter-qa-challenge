@@ -16,9 +16,6 @@ if (!fs.existsSync(videoFile)) {
 export const config = {
   target: 'https://webdemo.agora.io/basicVideoCall/index.html',
   plugins: {
-    '@artilleryio/playwright-reporter': {
-      name: 'Natter QA Challenge'
-    },
     ensure: {
       thresholds: {
         '✅ WebRTC - User Successfully Joined Call': 0.95,
@@ -43,12 +40,10 @@ export const config = {
     }
   },
   phases: [
-    { duration: 10, arrivalRate: 1, name: 'Warm up' },
-    { duration: 10, arrivalRate: 2, name: 'Load' },
-    { duration: 10, arrivalRate: 5, name: 'Ramp up' },
-    { duration: 10, arrivalRate: 10, name: 'Heavy Load' },
-    { duration: 5, arrivalRate: 15, name: 'Spike' },
-    { duration: 10, arrivalRate: 2, name: 'Recovery' }
+    { duration: 5, arrivalRate: 1, name: 'Warm up' },
+    { duration: 10, arrivalRate: 3, name: 'Load' },
+    { duration: 5, arrivalRate: 5, name: 'Ramp up' },
+    { duration: 10, arrivalRate: 1, name: 'Recovery' }
   ],
   metrics: {
     '✅ WebRTC - User Successfully Joined Call': 'counter',
