@@ -105,6 +105,10 @@ jobs:
     needs: [setup, functional-tests]
     runs-on: ubuntu-latest
     env:
+      NODE_ENV: ci
+      AGORA_APP_ID: ${{ secrets.AGORA_APP_ID }}
+      AGORA_TOKEN: ${{ secrets.AGORA_TOKEN }}
+      AGORA_CHANNEL: ${{ secrets.AGORA_CHANNEL }}
       ARTILLERY_API_KEY: ${{ secrets.ARTILLERY_API_KEY }}
     steps:
       - name: Checkout Repository
