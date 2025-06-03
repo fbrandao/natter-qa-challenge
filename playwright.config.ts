@@ -3,22 +3,10 @@ import { config } from './config/env';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
 
 // Get the root directory path
 const __filename = fileURLToPath(import.meta.url);
 const rootDir = path.dirname(__filename);
-
-// Ensure CTRF report directory exists at project root
-const ctrfReportDir = path.join(process.cwd(), 'ctrf', 'reports', 'e2e');
-if (!fs.existsSync(ctrfReportDir)) {
-  console.log('Creating CTRF report directory:', ctrfReportDir);
-  fs.mkdirSync(ctrfReportDir, { recursive: true });
-}
-
-// Define CTRF report file path at project root
-const ctrfReportFile = path.join(ctrfReportDir, 'ctrf.json');
-console.log('CTRF report will be written to:', ctrfReportFile);
 
 export default defineConfig({
   testDir: path.join(rootDir, 'tests/functional/e2e'),
@@ -46,7 +34,7 @@ export default defineConfig({
         [
           'playwright-ctrf-json-reporter',
           {
-            outputFile: ctrfReportFile,
+            outputFile: path.join(rootDir, 'ctrf/reports/e2e/ctrf.json'),
             appName: 'Natter QA Challenge',
             appVersion: '1.0.0',
             osPlatform: os.platform(),
@@ -55,7 +43,6 @@ export default defineConfig({
             buildName: 'Natter E2E Build',
             buildNumber: process.env.GITHUB_RUN_NUMBER || '1',
             testEnvironment: process.env.NODE_ENV || 'development',
-            debug: true
           },
         ],
       ]

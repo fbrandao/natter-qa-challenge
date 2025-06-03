@@ -1,9 +1,11 @@
 import { BrowserType } from '@playwright/test';
 import { VideoCallPage } from '../../pages/basicVideo/videCallPage';
 import { CallConfig, User, UserSession } from './types';
+import { defaultLogger } from '../logger';
 
 export class Call {
   private users: UserSession[] = [];
+  private logger = defaultLogger.withContext('Call');
 
   constructor(
     private browserType: BrowserType,
@@ -42,7 +44,7 @@ export class Call {
       );
       const session: UserSession = { user, context, page, ui };
       this.users.push(session);
-      console.log(`[Call] Added user ${logName}. Total users: ${this.users.length}`);
+      this.logger.info(`Added user ${logName}. Total users: ${this.users.length}`);
       return session;
     } catch (error) {
       throw new Error(
@@ -62,28 +64,28 @@ export class Call {
       await ui.leaveCall();
       await ui.expectNoLocalVideoPlaying();
     } catch (err) {
-      console.warn(`Leave error for user ${label}:`, err);
+      this.logger.warn(`Leave error for user ${label}:`, err);
     } finally {
       await context.close();
       this.users.splice(index, 1);
-      console.log(`Removed user ${label}`);
+      this.logger.info(`Removed user ${label}`);
     }
   }
 
   async cleanup(): Promise<void> {
-    console.log(`[Call] Starting cleanup of ${this.users.length} users...`);
+    this.logger.header(`Starting cleanup of ${this.users.length} users`);
     for (const { context, user } of this.users) {
       const logName = user.testUserName || `ID: ${user.userId}`;
       try {
-        console.log(`[Call] Closing context for user ${logName}...`);
+        this.logger.debug(`Closing context for user ${logName}`);
         await context.close();
-        console.log(`[Call] Context closed for user ${logName}`);
+        this.logger.debug(`Context closed for user ${logName}`);
       } catch (error) {
-        console.error(`[Call] Error closing context for user ${logName}:`, error);
+        this.logger.error(`Error closing context for user ${logName}:`, error);
       }
     }
     this.users = [];
-    console.log('[Call] All users cleaned up');
+    this.logger.info('All users cleaned up');
   }
 
   getUsers(): UserSession[] {

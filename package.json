@@ -58,7 +58,8 @@
     "lint-staged": "^16.1.0",
     "playwright-ctrf-json-reporter": "^0.0.20",
     "prettier": "^3.5.3",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.2",
+    "winston": "^3.17.0"
   },
   "lint-staged": {
     "*.{ts,js}": [

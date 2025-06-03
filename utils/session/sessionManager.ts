@@ -4,10 +4,12 @@ import { CallConfig, User } from './types';
 import { faker } from '@faker-js/faker';
 import * as path from 'path';
 import { paths } from '../../config/env';
+import { defaultLogger } from '../logger';
 
 export class SessionManager {
   private calls: Call[] = [];
   private videoFiles: string[];
+  private logger = defaultLogger.withContext('SessionManager');
 
   constructor(
     private browserType: BrowserType,
@@ -22,9 +24,7 @@ export class SessionManager {
   }
 
   private getRandomVideoFilePath(): string | undefined {
-    console.log('Using video path:', this.videoFiles);
     if (this.videoFiles.length === 0) return undefined;
-    console.log('Random video file path:', faker.helpers.arrayElement(this.videoFiles));
     return faker.helpers.arrayElement(this.videoFiles);
   }
 
@@ -32,7 +32,7 @@ export class SessionManager {
     const callConfig = config ?? this.config;
     const call = new Call(this.browserType, callConfig, this.getRandomVideoFilePath.bind(this));
     this.calls.push(call);
-    console.log(`[SessionManager] Created new call. Total calls: ${this.calls.length}`);
+    this.logger.info(`Created new call. Total calls: ${this.calls.length}`);
     return call;
   }
 
@@ -45,19 +45,19 @@ export class SessionManager {
   }
 
   async cleanup(): Promise<void> {
-    console.log(`[SessionManager] Starting cleanup of ${this.calls.length} calls...`);
-    const callsToCleanup = [...this.calls]; // Create a copy to avoid modification during iteration
+    this.logger.header(`Starting cleanup of ${this.calls.length} calls`);
+    const callsToCleanup = [...this.calls];
     for (const call of callsToCleanup) {
       try {
-        console.log('[SessionManager] Cleaning up call...');
+        this.logger.debug('Cleaning up call...');
         await call.cleanup();
-        console.log('[SessionManager] Call cleanup complete');
+        this.logger.debug('Call cleanup complete');
       } catch (error) {
-        console.error('[SessionManager] Error during call cleanup:', error);
+        this.logger.error('Error during call cleanup:', error);
       }
     }
     this.calls = [];
-    console.log('[SessionManager] All calls cleaned up');
+    this.logger.info('All calls cleaned up');
   }
 
   getCalls(): Call[] {

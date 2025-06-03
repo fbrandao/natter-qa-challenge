@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { defaultLogger } from '../logger';
 
 export interface MediaHealthCheck {
   name: string;
@@ -7,6 +8,7 @@ export interface MediaHealthCheck {
 
 export class HealthCheckRegistry {
   private checks: MediaHealthCheck[] = [];
+  private logger = defaultLogger.withContext('HealthCheck');
 
   add(check: MediaHealthCheck) {
     this.checks.push(check);
@@ -21,19 +23,20 @@ export class HealthCheckRegistry {
 export const healthChecks = new HealthCheckRegistry();
 
 export async function runHealthChecks(page: Page) {
-  console.log('Running media device health checks...');
+  const logger = defaultLogger.withContext('HealthCheck');
+  logger.header('Running media device health checks');
 
   for (const check of healthChecks.getChecks()) {
     try {
-      console.log(`Checking ${check.name}...`);
+      logger.debug(`Checking ${check.name}...`);
       const isHealthy = await check.check(page);
 
       if (!isHealthy) {
         throw new Error(`${check.name} check failed`);
       }
-      console.log(`${check.name} is healthy!`);
+      logger.info(`${check.name} is healthy!`);
     } catch (error) {
-      console.error(`${check.name} health check failed:`, error);
+      logger.error(`${check.name} health check failed:`, error);
       throw error;
     }
   }
