@@ -13,7 +13,8 @@ const isLocal = !isCI && !isProduction && !isTest;
 
 // Load .env only in local
 if (isLocal) {
-  dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+  const envPath = path.resolve(__dirname, '../../../.env');
+  dotenv.config({ path: envPath });
 }
 
 function getEnvVar(key: string, required = false) {
