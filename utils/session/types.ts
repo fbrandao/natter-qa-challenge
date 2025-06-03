@@ -1,5 +1,5 @@
 import { BrowserContext, Page } from '@playwright/test';
-import { BasicVideoCallPage } from '../../pages/basicVideo/basicVideoPage';
+import { VideoCallPage } from '../../pages/basicVideo/videCallPage';
 
 export type User = {
   userId: number;
@@ -11,7 +11,7 @@ export type UserSession = {
   user: User;
   context: BrowserContext;
   page: Page;
-  ui: BasicVideoCallPage;
+  ui: VideoCallPage;
 };
 
 export type CallConfig = {

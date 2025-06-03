@@ -1,5 +1,5 @@
 import { BrowserType } from '@playwright/test';
-import { BasicVideoCallPage } from '../../pages/basicVideo/basicVideoPage';
+import { VideoCallPage } from '../../pages/basicVideo/videCallPage';
 import { CallConfig, User, UserSession } from './types';
 
 export class Call {
@@ -32,7 +32,7 @@ export class Call {
       });
 
       const page = await context.newPage();
-      const ui = new BasicVideoCallPage(page);
+      const ui = new VideoCallPage(page);
 
       await ui.navigateAndJoin(
         this.config.appId,

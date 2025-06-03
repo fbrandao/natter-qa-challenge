@@ -7,7 +7,7 @@ interface ApiRequest {
   url: string | RegExp;
 }
 
-export class BasicVideoCallPage extends BasePage {
+export class VideoCallPage extends BasePage {
   readonly url = '/basicVideoCall/index.html';
 
   readonly appIdInput: Locator = this.page.getByRole('textbox', { name: 'Enter the appid' });

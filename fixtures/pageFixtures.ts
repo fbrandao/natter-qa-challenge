@@ -1,13 +1,13 @@
 import { test as base, Page } from '@playwright/test';
-import { BasicVideoCallPage } from '../pages/basicVideo/basicVideoPage';
+import { VideoCallPage } from '../pages/basicVideo/videCallPage';
 
 type PageFixtures = {
-  videoCallPage: BasicVideoCallPage;
+  videoCallPage: VideoCallPage;
 };
 
 export const test = base.extend<PageFixtures>({
   videoCallPage: async ({ page }: { page: Page }, use) => {
-    const pageObj = new BasicVideoCallPage(page);
+    const pageObj = new VideoCallPage(page);
     await use(pageObj);
   },
 });
