@@ -12,17 +12,20 @@ export const test = mergeTests(pageFixtures, sessionFixtures, userFixtures);
 
 // Add global beforeEach hook for health checks
 test.beforeEach(async ({ page }, testInfo) => {
-  logger.header(`Starting test: ${testInfo.title}`);
+  logger.header(`Starting Test: ${testInfo.title}`);
+  logger.info(`Test File: ${testInfo.file}`);
+  logger.info(`Test Line: ${testInfo.line}`);
   
   await test.step('Run media device health checks', async () => {
     await runHealthChecks(page);
   });
 });
 
-test.afterEach(async ({ page }, testInfo) => {
-  logger.info(`Completed test: ${testInfo.title}`);
-  logger.debug(`Test duration: ${testInfo.duration}ms`);
-  logger.debug(`Test status: ${testInfo.status}`);
+test.afterEach(async (_, testInfo) => {
+  const status = testInfo.status === 'passed' ? '✅ PASSED' : '❌ FAILED';
+  logger.header(`Test Complete: ${testInfo.title}`);
+  logger.info(`Status: ${status}`);
+  logger.info(`Duration: ${testInfo.duration}ms`);
 });
 
 export { baseExpect as expect };

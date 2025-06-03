@@ -5,8 +5,8 @@ const levels = {
   error: 0,
   warn: 1,
   info: 2,
+  header: 3,
   debug: 3,
-  header: 4,
 };
 
 // Define colors for each level
@@ -14,8 +14,8 @@ const colors = {
   error: 'red',
   warn: 'yellow',
   info: 'green',
-  debug: 'blue',
   header: 'magenta',
+  debug: 'blue',
 };
 
 // Define icons for each level
@@ -23,8 +23,8 @@ const icons = {
   error: '❌',
   warn: '⚠️',
   info: 'ℹ️',
-  debug: '🔍',
   header: '📌',
+  debug: '🔍',
 };
 
 // Add colors to Winston
