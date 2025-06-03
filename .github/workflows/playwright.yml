@@ -35,7 +35,7 @@ jobs:
         run: npm ci
 
   functional-tests:
-    name: Playwright E2E Tests
+    name: Functional Tests - Playwright
     needs: setup
     runs-on: ubuntu-latest
     container:
@@ -97,16 +97,13 @@ jobs:
           retention-days: 14
 
   performance-tests:
-    name: Artillery Performance Tests - Playwright Engine
+    name: Performance Tests - Artillery
     needs: [setup, functional-tests]
-    runs-on: ubuntu-latest
-    env:
-      ARTILLERY_API_KEY: ${{ secrets.ARTILLERY_API_KEY }}
+    runs-on: ubuntu-latest      
     steps:
       - uses: actions/checkout@v4
 
       - name: Execute load tests
         uses: artilleryio/action-cli@v1
         with:
-          command: run tests/performance/join-call.ts --record
-  
+          command: run tests/performance/join-call.ts --record --key ${{ secrets.ARTILLERY_API_KEY }} 
