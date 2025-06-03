@@ -15,7 +15,7 @@ const reportsDir = path.resolve(rootDir, 'reports/performance');
 
 // Load .env only in local
 if (isLocal) {
-  const envPath = path.resolve(rootDir, '.env');
+  const envPath = path.resolve(rootDir, '../../.env');
   dotenv.config({ path: envPath });
 }
 
@@ -32,14 +32,14 @@ const config = {
   },
   auth: {
     agora: {
-      appId: getEnvVar('AGORA_APP_ID', false),
-      token: getEnvVar('AGORA_TOKEN', false),
-      channel: getEnvVar('AGORA_CHANNEL', false),
+      appId: getEnvVar('AGORA_APP_ID', true),
+      token: getEnvVar('AGORA_TOKEN', true),
+      channel: getEnvVar('AGORA_CHANNEL', true),
       userId: randomUUID()
     }
   },
   artillery: {
-    apiKey: getEnvVar('ARTILLERY_API_KEY', false),
+    apiKey: getEnvVar('ARTILLERY_API_KEY', true),
   }
 };
 

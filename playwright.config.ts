@@ -64,8 +64,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         channel: 'chromium',
         permissions: ['camera', 'microphone'],
-        baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
-        headless: false,
+        baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html'
       },
     },
     {
@@ -76,7 +75,6 @@ export default defineConfig({
         channel: 'chromium',
         permissions: ['camera', 'microphone'],
         baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
-        headless: false,
       },
     },
     {
@@ -88,7 +86,6 @@ export default defineConfig({
         permissions: ['camera', 'microphone'],
         viewport: { width: 1280, height: 720 },
         baseURL: 'https://webdemo.agora.io/basicVideoCall/index.html',
-        headless: false,
       },
     },    
   ],
