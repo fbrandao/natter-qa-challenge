@@ -99,9 +99,12 @@ jobs:
   performance-tests:
     name: Performance Tests - Artillery
     needs: [setup, functional-tests]
-    runs-on: ubuntu-latest      
+    runs-on: ubuntu-latest
+    env:
+      ARTILLERY_API_KEY: ${{ secrets.ARTILLERY_API_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Restore node_modules Cache
         uses: actions/cache@v4
@@ -109,9 +112,8 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Execute load tests
-        uses: artilleryio/action-cli@v1
-        env:
-          ARTILLERY_API_KEY: ${{ secrets.ARTILLERY_API_KEY }}
-        with:
-          command: npm run test:performance:record
+        run: npm run test:performance:record
