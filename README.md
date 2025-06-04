@@ -189,16 +189,37 @@ npm run format:check # Check formatting
 
 ## 📊 Test Reports
 
-- **Functional Tests**: Generated in `reports/e2e`
-  - HTML reports
-  - JSON results
-  - Test traces
-  - Visual comparison diffs
+### Functional Test Reports
 
-- **Performance Tests**: Generated in `reports/performance/`
-  - Json reports from artillery
-  - [Artillery Cloud Example Dashboard](https://app.artillery.io/share/sh_6df86d64045c731da42c4e9ea5a3d84275a681192712ef80eeb8909a8e97551b)
+- **Location:** `reports/e2e`
+- **Formats:**
+  - **HTML Report:** Rich, interactive UI for browsing test results.
+  - **JSON & JUnit:** Machine-readable formats for CI integration.
+  - **Visual Snapshots:** Screenshots and diffs for UI regression.
+- **Automatic CI Summary:**
+  - Uses [CTRF Reporter](https://www.npmjs.com/package/playwright-ctrf-json-reporter) to publish a summary directly in the GitHub Actions UI.
+  - **Example:**  
+    👉 [Live CTRF report in GitHub Actions](https://github.com/fbrandao/natter-qa-challenge/actions/runs/15437002379)
 
+### Performance Test Reports
+
+- **Location:** `reports/performance/`
+- **Formats:**
+  - **Artillery JSON:** Raw results for further analysis.
+  - **Artillery HTML:** Visual summary generated with `artillery report`.
+  - **Artillery Cloud Dashboard:** Shareable, interactive dashboards.
+- **Example:**  
+  👉 [Artillery Cloud Example Dashboard](https://app.artillery.io/share/sh_6df86d64045c731da42c4e9ea5a3d84275a681192712ef80eeb8909a8e97551b)
+
+---
+
+**How to view reports:**
+- **Functional:**  
+  - Open `reports/e2e/index.html` in your browser for the full Playwright HTML report.
+  - View the CTRF summary directly in your [GitHub Actions run](https://github.com/fbrandao/natter-qa-challenge/actions).
+- **Performance:**  
+  - Run `npm run test:performance:report` to generate and open the Artillery HTML report.
+  - Visit the Artillery Cloud dashboard link for interactive exploration.
 
 ---
 

@@ -48,7 +48,7 @@ jobs:
       AGORA_TOKEN: ${{ secrets.AGORA_TOKEN }}
       AGORA_CHANNEL: ${{ secrets.AGORA_CHANNEL }}
       UPDATE_SNAPSHOTS: ${{ github.event.inputs.update_snapshots || false }}
-      LOG_LEVEL: debug
+      LOG_LEVEL: info
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
