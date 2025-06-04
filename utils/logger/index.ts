@@ -84,10 +84,25 @@ const logger = winston.createLogger({
     })
   ),
   transports: [
+    // Always show header, testStart, and testEnd messages
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize({ all: true })
       ),
+      level: 'header'
+    }),
+    // Show other messages based on LOG_LEVEL
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format((info) => {
+          if (['header', 'testStart', 'testEnd'].includes(info.level)) {
+            return false;
+          }
+          return info;
+        })(),
+        winston.format.colorize({ all: true })
+      ),
+      level: LOG_LEVEL
     })
   ],
 });
