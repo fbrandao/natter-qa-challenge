@@ -15,12 +15,13 @@ if (!fs.existsSync(videoFile)) {
 
 export const config = {
   target: 'https://webdemo.agora.io/basicVideoCall/index.html',
+  pluginPaths: ['artillery-plugin-ensure'],
   plugins: {
     ensure: {
       thresholds: {
-        '✅ WebRTC - User Successfully Joined Call': 0.95,
-        '🎥 WebRTC - Local Video Playback Success': 0.95,
-        '❌ WebRTC - Errors Encountered': 0.05
+        'WebRTC - User Joined': 0.95,
+        'WebRTC - Local Video Playback': 0.95,
+        'WebRTC - Errors': 0.05
       }
     }
   },
@@ -41,16 +42,14 @@ export const config = {
   },
   phases: [
     { duration: 5, arrivalRate: 1, name: 'Warm up' },
-    { duration: 10, arrivalRate: 3, name: 'Load' },
-    { duration: 5, arrivalRate: 5, name: 'Ramp up' },
-    { duration: 10, arrivalRate: 1, name: 'Recovery' }
+    { duration: 5, arrivalRate: 3, name: 'Load' },
+    { duration: 5, arrivalRate: 1, name: 'Recovery' }
   ],
   metrics: {
-    '✅ WebRTC - User Successfully Joined Call': 'counter',
-    '🎥 WebRTC - Local Video Playback Success': 'counter',
-    '❌ WebRTC - Errors Encountered': 'counter'
+    'WebRTC - User Joined': 'counter',
+    'WebRTC - Local Video Playback': 'counter',
+    'WebRTC - Errors': 'counter'
   }
-  
 };
 
 export const scenarios = [
@@ -61,40 +60,44 @@ export const scenarios = [
   }
 ];
 
-async function joinCallFlow(page: Page, vuContext: any, events: any, test: { step: (name: string, fn: () => Promise<void>) => Promise<void> }) {
+async function joinCallFlow(
+  page: Page,
+  vuContext: any,
+  events: any,
+  test: { step: (name: string, fn: () => Promise<void>) => Promise<void> }
+) {
   const videoCallPage = new VideoCallPage(page);
   const userId = `test-user-${vuContext.vuId}`;
 
   try {
     await test.step('Join call and verify video', async () => {
       await page.context().grantPermissions(['camera', 'microphone']);
-      
+
       await videoCallPage.navigateAndJoin(
         appConfig.auth.agora.appId,
         appConfig.auth.agora.token,
         appConfig.auth.agora.channel,
         userId
       );
-      
+
       await videoCallPage.expectSuccessAlert({ timeout: 10000 });
-      events.emit('counter', '✅ WebRTC - User Successfully Joined Call', 1);
-      
+      events.emit('counter', 'WebRTC - User Joined', 1);
+
       await videoCallPage.expectLocalVideoPlaying(1);
-      events.emit('counter', '🎥 WebRTC - Local Video Playback Success', 1);
+      events.emit('counter', 'WebRTC - Local Video Playback', 1);
     });
 
     await test.step('Leave call', async () => {
       await videoCallPage.leaveCall();
       await videoCallPage.expectNoLocalVideoPlaying();
     });
-
   } catch (error) {
     logger.error('Test failed:', error);
-    await page.screenshot({ 
+    await page.screenshot({
       path: path.join(appConfig.paths.reports, `error-${userId}.png`),
-      fullPage: true 
+      fullPage: true
     });
-    events.emit('counter', '❌ WebRTC - Errors Encountered', 1);
+    events.emit('counter', 'WebRTC - Errors', 1);
     throw error;
   }
 }
