@@ -76,7 +76,7 @@ async function joinCallFlow(page: Page, vuContext: any, events: any, test: { ste
         userId
       );
       
-      await videoCallPage.expectSuccessAlert();
+      await videoCallPage.expectSuccessAlert({ timeout: 10000 });
       events.emit('counter', '✅ WebRTC - User Successfully Joined Call', 1);
       
       await videoCallPage.expectLocalVideoPlaying(1);

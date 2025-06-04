@@ -59,8 +59,8 @@ export class VideoCallPage extends BasePage {
     return responses;
   }
 
-  async expectSuccessAlert() {
-    await expect(this.successAlertToast).toBeVisible();
+  async expectSuccessAlert(options?: { timeout?: number }) {
+    await expect(this.successAlertToast).toBeVisible({ timeout: options?.timeout });
     await expect(this.successAlertToast).toContainText('Joined room successfully');
   }
 

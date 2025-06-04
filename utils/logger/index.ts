@@ -6,7 +6,9 @@ const levels = {
   warn: 1,
   info: 2,
   header: 3,
-  debug: 3,
+  testStart: 4,
+  testEnd: 4,
+  debug: 5,
 };
 
 // Define colors for each level
@@ -15,6 +17,8 @@ const colors = {
   warn: 'yellow',
   info: 'green',
   header: 'magenta',
+  testStart: 'cyan',
+  testEnd: 'cyan',
   debug: 'blue',
 };
 
@@ -24,6 +28,8 @@ const icons = {
   warn: '⚠️',
   info: 'ℹ️',
   header: '📌',
+  testStart: '🚀',
+  testEnd: '🏁',
   debug: '🔍',
 };
 
@@ -52,6 +58,12 @@ const logger = winston.createLogger({
       
       // Special formatting for headers
       if (level === 'header') {
+        const headerLine = '='.repeat(80);
+        return `\n${headerLine}\n${icon} ${message}\n${headerLine}\n`;
+      }
+      
+      // Special formatting for test start/end
+      if (level === 'testStart' || level === 'testEnd') {
         const headerLine = '='.repeat(80);
         return `\n${headerLine}\n${icon} ${message}\n${headerLine}\n`;
       }
@@ -111,6 +123,16 @@ class Logger {
 
   error(message: string, meta?: any): void {
     logger.error(this.formatMessage(message), meta);
+  }
+
+  // Add test start method
+  testStart(message: string): void {
+    logger.log('testStart', message);
+  }
+
+  // Add test end method
+  testEnd(message: string): void {
+    logger.log('testEnd', message);
   }
 
   // Create a new logger instance with a specific context

@@ -98,15 +98,8 @@ jobs:
         with:
           report-path: reports/e2e/ctrf.json
 
-      - name: List files after Publish CTRF Test Report
-        run: |
-          echo "Root directory:" && ls -la
-          echo "ctrf/reports/e2e:" && ls -la ctrf/reports/e2e || true
-          echo "reports/e2e:" && ls -la reports/e2e || true
-          echo "test-results:" && ls -la test-results || true
-
       - name: Upload Test Snapshots
-        if: always()
+        if: ${{ github.event.inputs.update_snapshots == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: snapshots-${{ github.run_id }}
@@ -123,7 +116,7 @@ jobs:
       AGORA_TOKEN: ${{ secrets.AGORA_TOKEN }}
       AGORA_CHANNEL: ${{ secrets.AGORA_CHANNEL }}
       ARTILLERY_API_KEY: ${{ secrets.ARTILLERY_API_KEY }}
-      LOG_LEVEL: debug
+      LOG_LEVEL: info
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -144,10 +137,11 @@ jobs:
 
       - name: Run Load Tests
         run: npm run test:performance:record
-      - name: List files after Load Tests
-        run: |
-          echo "Root directory:" && ls -la
-          echo "ctrf/reports/e2e:" && ls -la ctrf/reports/e2e || true
-          echo "reports/e2e:" && ls -la reports/e2e || true
-          echo "test-results:" && ls -la test-results || true
-
+      
+      - name: Upload Performance Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-report-${{ github.run_id }}
+          path: reports/performance
+          retention-days: 14
