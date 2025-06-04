@@ -4,8 +4,8 @@
     "private": true,
     "type": "commonjs",
     "scripts": {
-        "load:record": "artillery run --output ../../reports/performance/results-performance.json ./join-call.ts --record --key $ARTILLERY_API_KEY",
-        "load": "artillery run --output ../../reports/performance/results-performance.json ./join-call.ts"    
+        "load:record": "artillery run --output ./reports/performance/results-performance.json ./join-call.ts --record --key $ARTILLERY_API_KEY",
+        "load": "artillery run --output ./reports/performance/results-performance.json ./join-call.ts"    
     }
 }
 
