@@ -23,6 +23,15 @@ export class VideoCallPage extends BasePage {
     name: 'ADVANCED SETTINGS',
   });
 
+  // Advanced Settings Elements
+  readonly advancedSettingsCollapse: Locator = this.page.locator('#agora-collapse');
+  readonly microphoneDropdown: Locator = this.page.getByRole('button', { name: 'Mics' });
+  readonly cameraDropdown: Locator = this.page.getByRole('button', { name: 'Cams' });
+  readonly codecVp8Radio: Locator = this.page.getByRole('radio', { name: 'vp8' });
+  readonly codecVp9Radio: Locator = this.page.getByRole('radio', { name: 'vp9' });
+  readonly codecH264Radio: Locator = this.page.getByRole('radio', { name: 'h264' });
+  readonly profileDropdown: Locator = this.page.getByRole('button', { name: 'Profiles' });
+
   // Selectors for video elements
   readonly remoteVideoContainer: Locator = this.page.locator(
     '#remote-playerlist .agora_video_player'
@@ -313,5 +322,64 @@ export class VideoCallPage extends BasePage {
     }
     
     this.logger.info(`Snapshot completed: ${snapshotName}`);
+  }
+
+  /**
+   * Toggles the advanced settings panel
+   * @param shouldBeVisible Whether the panel should be visible after the action
+   */
+  async toggleAdvancedSettings(shouldBeVisible: boolean = true) {
+    this.logger.debug('Toggling advanced settings panel');
+    await this.advanceSettingsButton.click();
+    
+    if (shouldBeVisible) {
+      await expect(this.advancedSettingsCollapse).toBeVisible();
+      await expect(this.microphoneDropdown).toBeVisible();
+      await expect(this.cameraDropdown).toBeVisible();
+      await expect(this.codecVp8Radio).toBeVisible();
+      await expect(this.codecVp9Radio).toBeVisible();
+      await expect(this.codecH264Radio).toBeVisible();
+      await expect(this.profileDropdown).toBeVisible();
+    } else {
+      await expect(this.advancedSettingsCollapse).toBeHidden();
+    }
+  }
+
+  /**
+   * Verifies that all advanced settings elements are present and visible
+   */
+  async expectAdvancedSettingsVisible() {
+    this.logger.debug('Verifying advanced settings elements');
+    await expect(this.advancedSettingsCollapse).toBeVisible();
+    await expect(this.microphoneDropdown).toBeVisible();
+    await expect(this.cameraDropdown).toBeVisible();
+    await expect(this.codecVp8Radio).toBeVisible();
+    await expect(this.codecVp9Radio).toBeVisible();
+    await expect(this.codecH264Radio).toBeVisible();
+    await expect(this.profileDropdown).toBeVisible();
+  }
+
+  /**
+   * Switches the video codec to the specified option
+   * @param codec The codec to switch to ('vp8', 'vp9', or 'h264')
+   */
+  async switchCodec(codec: 'vp8' | 'vp9' | 'h264') {
+    this.logger.debug(`Switching codec to ${codec}`);
+    
+    const codecRadio = this.page.getByRole('radio', { name: codec });
+    await codecRadio.check();
+    
+    // Verify the codec was switched
+    await expect(codecRadio).toBeChecked();
+  }
+
+  /**
+   * Verifies that the specified codec is selected
+   * @param codec The codec to verify ('vp8', 'vp9', or 'h264')
+   */
+  async expectCodecSelected(codec: 'vp8' | 'vp9' | 'h264') {
+    this.logger.debug(`Verifying ${codec} codec is selected`);
+    const codecRadio = this.page.getByRole('radio', { name: codec });
+    await expect(codecRadio).toBeChecked();
   }
 }

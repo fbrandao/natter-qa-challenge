@@ -52,4 +52,33 @@ test.describe.serial('🔒 Basic WebRTC Checks for single users', () => {
       await bobSession.ui.expectNoLocalVideoPlaying();
     });
   });
+
+  test('should toggle advanced settings panel and verify all elements', async () => {
+    await test.step('Open advanced settings panel', async () => {
+      await bobSession.ui.toggleAdvancedSettings(true);
+    });
+
+    await test.step('Verify all advanced settings elements are visible', async () => {
+      await bobSession.ui.expectAdvancedSettingsVisible();
+    });
+
+    await test.step('Switch codec to VP9 and verify', async () => {
+      await bobSession.ui.switchCodec('vp9');
+      await bobSession.ui.expectCodecSelected('vp9');
+    });
+
+    await test.step('Switch codec to H264 and verify', async () => {
+      await bobSession.ui.switchCodec('h264');
+      await bobSession.ui.expectCodecSelected('h264');
+    });
+
+    await test.step('Switch back to VP8 and verify', async () => {
+      await bobSession.ui.switchCodec('vp8');
+      await bobSession.ui.expectCodecSelected('vp8');
+    });
+
+    await test.step('Close advanced settings panel', async () => {
+      await bobSession.ui.toggleAdvancedSettings(false);
+    });
+  });
 });
