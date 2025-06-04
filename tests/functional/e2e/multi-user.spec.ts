@@ -44,10 +44,6 @@ test.describe.serial('🔒 Multi-user WebRTC Scenarios', () => {
       await bobSession.ui.leaveCall();
       await bobSession.ui.expectNoLocalVideoPlaying();
       await bobSession.context.close();
-      console.log(
-        `User ${bobSession.user.testUserName} (ID: ${bobSession.user.userId}) has left and their context is closed.`
-      );
-
       await aliceSession.ui.expectNoRemoteUserVideoPlaying(bob);
       await aliceSession.ui.expectRemoteVideosPlaying(0);
       await aliceSession.ui.expectLocalVideoPlaying(1);
